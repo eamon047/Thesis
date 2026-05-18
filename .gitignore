@@ -25,3 +25,8 @@ main.pdf
 backup.zip
 *.bak
 *.tmp
+
+# Local reference material and experiments
+参考论文/
+参考文献/
+实验/
