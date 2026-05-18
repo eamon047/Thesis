@@ -1,0 +1,230 @@
+%\documentclass{kuisthesis}			% 特別研究報告書
+%\documentstyle[master]{kuisthesis}		% 修士論文(和文)
+%\documentclass[master]{kuisthesis}		% 修士論文(和文)
+%\documentstyle[master,english]{kuisthesis}	% 修士論文(英文)
+\documentclass[master,english]{kuisthesis}	% 修士論文(英文)
+
+\usepackage[a4paper]{geometry}
+
+% \usepackage{multibib}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage[dvipdfmx,dvipsnames]{xcolor}
+\usepackage{tabularx}
+\usepackage{caption}     % \captionsetup
+
+\makeatletter
+\let\subfigure\relax
+\let\endsubfigure\relax
+\let\subtable\relax
+\let\endsubtable\relax
+\makeatother
+
+\usepackage{titlesec}
+\titleformat{\section}[hang]
+  {\normalfont\Large\bfseries}
+  {Chapter~\thesection}
+  {1em}
+  {}
+
+\let\KUsec\section
+\renewcommand{\section}{\clearpage\KUsec}
+
+\usepackage{subcaption}
+% \usepackage{soul}
+% \usepackage[latin1]{inputenc}
+% \usepackage{xstring}
+\usepackage{natbib}
+% \usepackage{breakcites}
+% \usepackage{siunitx}
+% \usepackage{makecell}
+% \usepackage{diagbox} % for diagbox
+% \usepackage{multirow}
+% \usepackage{pdfpages}
+\usepackage[ruled,linesnumbered,vlined]{algorithm2e}
+% \usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bbm}
+\usepackage{booktabs} % To thicken table lines
+% \usepackage{verbatim}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage[english]{babel}
+\usepackage{amsfonts}
+% \usepackage{arydshln}
+% \usepackage{subcaption}
+% \usepackage{colortbl}
+\usepackage[dvipdfmx]{hyperref}
+% \usepackage{longtable}
+
+\usepackage{newtxtext}
+% \usepackage{newtxmath}
+\usepackage{physics}
+
+\input{math_commands.tex}
+\newcolumntype{s}{>{\hsize=.5\hsize}X}
+% \newcommand{\heading}[1]{\multicolumn{1}{c}{#1}}
+
+% \newcommand{\fn}[1]{\footnote{#1}}
+% \renewcommand{\floatpagefraction}{.95}
+% %\newcommand{\citept}[1]{\newcitep{#1}}
+% %\newcommand{\citep}[1]{\citep{#1}}
+% \newcommand{\FIXME}[1]{\fbox{$\star$} (#1)}
+% \newcommand{\Sec}[1]{Section~\ref{sec:#1}}
+% \newcommand{\Fig}[1]{Figure~\ref{fig:#1}}
+% \newcommand{\Tab}[1]{Table~\ref{tab:#1}}
+% \newcommand{\Algo}[1]{Algorithm~\ref{algo:#1}}
+% \newcommand{\Eq}[1]{Eq.~(\ref{eq:#1})}
+% \newcommand{\ra}{{$\rightarrow$}}
+% \newcommand{\task}[2]{\mbox{#1{\ra}#2}}
+
+
+\definecolor{cR}{RGB}{255,204,204}
+\definecolor{cG}{RGB}{204,255,204}
+\definecolor{cB}{RGB}{204,204,255}
+\definecolor{cK}{RGB}{221,221,221}
+\definecolor{navyblue}{rgb}{0.0,0.0,0.5}
+\newcommand{\bgR}[1]{\cellcolor{cR}#1}
+\newcommand{\bgG}[1]{\cellcolor{cG}#1}
+\newcommand{\bgB}[1]{\cellcolor{cB}#1}
+\newcommand{\bgK}[1]{\cellcolor{cK}#1}
+\newcommand{\bgZ}[1]{#1}
+\newcommand{\newblock}{}
+
+\newcommand{\uproman}[1]{\uppercase\expandafter{\romannumeral #1}}
+\newcommand{\ul}{\underline{\lambda}}
+\newcommand{\uL}{\underline{L}}
+\newcommand{\CGRI}{{\sf{FTPL~CGR~I}}}
+\newcommand{\CGRIIU}{{\sf{FTPL~CGR~II-U}}}
+\newcommand{\CGRIIB}{{\sf{FTPL~CGR~II-B}}}
+\newcommand{\GR}{{\sf{FTPL~GR}}}
+
+% \newcommand{\argmax}{\mathop{\rm arg~max}\limits}
+% \newcommand{\argmin}{\mathop{\rm arg~min}\limits}
+% \newcommand{\mX}{\mathcal{X}}
+% \newcommand{\mY}{\mathcal{Y}}
+
+\newcommand{\honda}[1]{\textcolor{red}{[Honda: #1]}}
+\newcommand{\nn}{\nonumber\\}
+\newcommand{\n}{\nonumber}
+\newcommand{\nec}{\mathcal{A}}
+\usepackage{comment}
+%\newcommand{\id}{ \mbox{\rm 1}\hspace{-0.63em}\mbox{\rm \small 1\,}}
+%\newcommand{\idx}[1]{\id\!\left[#1\right]}
+\newcommand{\rmax}{i'}
+
+\definecolor{G}{RGB}{142,207,201}
+\definecolor{SG}{RGB}{0,251,0}
+\definecolor{O}{RGB}{255,190,122}
+\definecolor{Y}{RGB}{255,190,122}
+\definecolor{R}{RGB}{250,127,111}
+\definecolor{SR}{RGB}{250,0,0}
+\definecolor{B}{RGB}{130,176,210}
+\definecolor{P}{RGB}{190,184,220}
+
+%\usepackage[hidelinks]{hyperref} %% turned off to avoid errors for multi-page hyperlink
+\hypersetup
+{
+    colorlinks=true,
+    citecolor=navyblue,
+    linkcolor=navyblue,
+    filecolor=navyblue,
+    urlcolor=navyblue,
+}
+\urlstyle{same}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+%\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}{Remark}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+
+\def\dqed{\tag*{$\square\kern2mm$}} %qed symbol for equations
+\newenvironment{proofof}[1]{\par\noindent{\bf #1\ }}{\hfill\BlackBox\\[2mm]} %environment for "Proof of..."
+\newenvironment{proof2}{\par\noindent{\bf Proof\ }}{\vspace{0mm}} %without qed symbol
+\newenvironment{proofof2}[1]{\par\noindent{\bf #1\ }}{\vspace{0mm}} %combination of the above
+
+\jtitle[バンディット問題における両環境最適保証付き Follow-the-Perturbed-Leader のための準線形時間アルゴリズム] % 和文題目（内容梗概／目次用）
+{バンディット問題における両環境最適保証付き Follow-the-Perturbed-Leader のための準線形時間アルゴリズム}    % 和文題目
+\etitle[Nearly Linear Time Algorithm for FTPL with BOBW Guarantee in Bandit Problems]{Nearly Linear Time Algorithm for Follow-the-Perturbed-Leader
+with Best-of-Both-Worlds Guarantee in Bandit Problems} %en_title 
+\jauthor{趙 怡名}         % 和文著者名
+\eauthor{Yiming Zhao} % 英文著者名
+\supervisor{Prof. Junya Honda}	% 指導教官名
+\date{\today}		% 提出年月日
+\department{Systems Science }		% 修士論文の場合の専攻名
+
+% 1. change video-helpful to visual scene-aware?
+% 5. need add content?
+
+
+\begin{document}
+\maketitle                  % とびらの出力
+
+% \begin{jabstract}
+%     abstract in Japanese
+% \end{jabstract}
+
+\begin{eabstract}
+    This thesis studies the complexity and optimality of Follow-the-Perturbed-Leader (FTPL) policy in the $K$-armed bandit problem. 
+    In this problem, a player repeatedly chooses one of $K$ arms and observes only the loss of the chosen arm, where the loss is generated from the environment in either stochastic or adversarial setting. 
+    The objective of the player is to minimize the cumulative loss over all rounds. 
+    Despite the widespread use of Follow-the-Regularized-Leader (FTRL) policy, which provides good theoretical guarantees on cumulative loss in both stochastic and adversarial settings, it requires solving an optimization problem at each round, leading to a high computational cost. 
+    % In practice, policies that perform well in both settings are desirable since the nature of the environment is often unknown. 
+    % This is a status known as Best-of-Both-Worlds (BOBW), and it can be achieved by some policies such as Follow-the-Regularized-Leader (FTRL). 
+    % However, FTRL requires solving an optimization problem at each round, which can be computationally expensive. 
+    In light of this limitation, FTPL policy, which efficiently chooses an arm with perturbed cumulative loss, has gained wide attention since it has good theoretical guarantees in both stochastic and adversarial settings without solving an optimization problem.
+    % FTPL is a promising policy that achieves the Best-of-Both-Worlds (BOBW) guarantee without solving an optimization problem unlike Follow-the-Regularized-Leader (FTRL). 
+    However,
+    %there exists an obstacle that
+    FTPL needs a procedure called geometric resampling to estimate the loss, which needs $O\qty(K^2)$ per-round average complexity, usually worse than that of FTRL. To address this issue, we propose a novel technique which we call Conditional Geometric Resampling (CGR). This is a technique for unbiased loss estimation applicable to general perturbation distributions, reducing the average complexity to $O\qty(K\log K)$ without sacrificing the theoretical guarantees.
+    We also propose a biased version of CGR that can control the worst-case complexity without sacrificing the theoretical guarantees for a certain perturbation distribution. 
+    We confirm through experiments that CGR does not only significantly improve the average and worst-case runtime but also gains lower cumulative loss thanks to the stable loss estimation.
+\end{eabstract}
+
+\tableofcontents			% 目次の出力
+
+\input{1_introduction.tex}
+\input{2_setup.tex}
+\input{3_results.tex}
+\input{4_experiments.tex}
+\input{6_proof.tex}
+\input{5_conclusion.tex}
+
+\section*{Acknowledgement}
+First and foremost, I would like to express my sincere gratitude to my supervisor, Professor Junya Honda, for his invaluable guidance in both theoretical research and academic writing throughout the two years of my master's program. 
+Whenever I made mistakes or encountered setbacks, he demonstrated great patience and provided me with constant encouragement and support.
+
+I would also like to express my sincere thanks to Professor Hidetoshi Shimodaira in our laboratory. 
+His insightful comments enabled me to revisit my research from a new perspective and helped me gain a deeper understanding of the essence of theoretical research.
+
+Moreover, I am extremely thankful to Dr.~Jongyeong Lee, who is my respected senior colleague and mentor. 
+His insightful advice and unwavering support have been important in my master's research journey. 
+This thesis is based on our joint work (with Professor Junya Honda), and I am deeply grateful for the opportunity to learn under his mentorship. 
+
+Next, I would like to thank all my lab mates for the pleasant atmosphere. 
+I would also like to thank my respected senior colleagues outside the laboratory for their kindness and encouragement. 
+
+Finally, I would like to express my deepest gratitude to my family for their unconditional love and support.
+
+
+
+
+\bibliographystyle{icml2025}   % 文献スタイルの指定
+% \bibliographystyle{unsrt}
+\bibliography{reference.bib}
+%\bibliography{reference}        % 参考文献の出力
+% \Appendix[付録：付録１]       % 付録の開始
+\Appendix
+% \renewcommand{\thesection}{\Alph{section}}
+% \setcounter{section}{0}
+\input{7_appendix.tex}
+
+\end{document}
