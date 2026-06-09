@@ -95,11 +95,6 @@
 \newcommand{\uproman}[1]{\uppercase\expandafter{\romannumeral #1}}
 \newcommand{\ul}{\underline{\lambda}}
 \newcommand{\uL}{\underline{L}}
-\newcommand{\CGRI}{{\sf{FTPL~CGR~I}}}
-\newcommand{\CGRIIU}{{\sf{FTPL~CGR~II-U}}}
-\newcommand{\CGRIIB}{{\sf{FTPL~CGR~II-B}}}
-\newcommand{\GR}{{\sf{FTPL~GR}}}
-
 % \newcommand{\argmax}{\mathop{\rm arg~max}\limits}
 % \newcommand{\argmin}{\mathop{\rm arg~min}\limits}
 % \newcommand{\mX}{\mathcal{X}}
@@ -151,19 +146,14 @@
 \newenvironment{proof2}{\par\noindent{\bf Proof\ }}{\vspace{0mm}} %without qed symbol
 \newenvironment{proofof2}[1]{\par\noindent{\bf #1\ }}{\vspace{0mm}} %combination of the above
 
-\jtitle[バンディット問題における両環境最適保証付き Follow-the-Perturbed-Leader のための準線形時間アルゴリズム] % 和文題目（内容梗概／目次用）
-{バンディット問題における両環境最適保証付き Follow-the-Perturbed-Leader のための準線形時間アルゴリズム}    % 和文題目
-\etitle[Nearly Linear Time Algorithm for FTPL with BOBW Guarantee in Bandit Problems]{Nearly Linear Time Algorithm for Follow-the-Perturbed-Leader
-with Best-of-Both-Worlds Guarantee in Bandit Problems} %en_title 
+\jtitle[知識グラフ埋め込みにおける予測多重性の関係レベル分析]
+{知識グラフ埋め込みにおける予測多重性の関係レベル分析}
+\etitle[Relation-Level Predictive Multiplicity in Knowledge Graph Embeddings]{Relation-Level Analysis of Predictive Multiplicity in Knowledge Graph Embedding Based Link Prediction}
 \jauthor{趙 怡名}         % 和文著者名
 \eauthor{Yiming Zhao} % 英文著者名
 \supervisor{Prof. Junya Honda}	% 指導教官名
 \date{\today}		% 提出年月日
 \department{Systems Science }		% 修士論文の場合の専攻名
-
-% 1. change video-helpful to visual scene-aware?
-% 5. need add content?
-
 
 \begin{document}
 \maketitle                  % とびらの出力
@@ -173,58 +163,36 @@ with Best-of-Both-Worlds Guarantee in Bandit Problems} %en_title
 % \end{jabstract}
 
 \begin{eabstract}
-    This thesis studies the complexity and optimality of Follow-the-Perturbed-Leader (FTPL) policy in the $K$-armed bandit problem. 
-    In this problem, a player repeatedly chooses one of $K$ arms and observes only the loss of the chosen arm, where the loss is generated from the environment in either stochastic or adversarial setting. 
-    The objective of the player is to minimize the cumulative loss over all rounds. 
-    Despite the widespread use of Follow-the-Regularized-Leader (FTRL) policy, which provides good theoretical guarantees on cumulative loss in both stochastic and adversarial settings, it requires solving an optimization problem at each round, leading to a high computational cost. 
-    % In practice, policies that perform well in both settings are desirable since the nature of the environment is often unknown. 
-    % This is a status known as Best-of-Both-Worlds (BOBW), and it can be achieved by some policies such as Follow-the-Regularized-Leader (FTRL). 
-    % However, FTRL requires solving an optimization problem at each round, which can be computationally expensive. 
-    In light of this limitation, FTPL policy, which efficiently chooses an arm with perturbed cumulative loss, has gained wide attention since it has good theoretical guarantees in both stochastic and adversarial settings without solving an optimization problem.
-    % FTPL is a promising policy that achieves the Best-of-Both-Worlds (BOBW) guarantee without solving an optimization problem unlike Follow-the-Regularized-Leader (FTRL). 
-    However,
-    %there exists an obstacle that
-    FTPL needs a procedure called geometric resampling to estimate the loss, which needs $O\qty(K^2)$ per-round average complexity, usually worse than that of FTRL. To address this issue, we propose a novel technique which we call Conditional Geometric Resampling (CGR). This is a technique for unbiased loss estimation applicable to general perturbation distributions, reducing the average complexity to $O\qty(K\log K)$ without sacrificing the theoretical guarantees.
-    We also propose a biased version of CGR that can control the worst-case complexity without sacrificing the theoretical guarantees for a certain perturbation distribution. 
-    We confirm through experiments that CGR does not only significantly improve the average and worst-case runtime but also gains lower cumulative loss thanks to the stable loss estimation.
+This thesis studies predictive multiplicity in knowledge graph embedding based link prediction.
+Aggregate ranking metrics such as Hits@10 summarize average performance, but they do not show whether individual query-level decisions are stable across similarly performing models.
+Predictive multiplicity addresses this issue by measuring disagreement among comparable prediction outputs.
+This thesis further asks whether such instability is uniformly distributed or systematically associated with relation-level graph structure.
+
+Using FB15k-237 and repeated runs of RotatE and TransE, this thesis analyzes relation-level Hits@10, ambiguity, and discrepancy under several structural factors.
+The main finding is that predictive multiplicity is strongly side-dependent under relation mapping type: structurally harder prediction directions tend to have lower Hits@10 and higher ambiguity and discrepancy.
+Inverse-like support is studied as an exploratory secondary factor, while symmetry is treated as a plausible but weakly supported candidate factor.
+The final abstract will be revised after the main experimental chapters are finalized.
 \end{eabstract}
 
 \tableofcontents			% 目次の出力
 
 \input{1_introduction.tex}
-\input{2_setup.tex}
-\input{3_results.tex}
-\input{4_experiments.tex}
-\input{6_proof.tex}
-\input{5_conclusion.tex}
+\input{2_background.tex}
+\input{3_predictive_multiplicity.tex}
+\input{4_relation_level_framework.tex}
+\input{5_experiments.tex}
+\input{6_discussion.tex}
+\input{7_conclusion.tex}
 
 \section*{Acknowledgement}
-First and foremost, I would like to express my sincere gratitude to my supervisor, Professor Junya Honda, for his invaluable guidance in both theoretical research and academic writing throughout the two years of my master's program. 
-Whenever I made mistakes or encountered setbacks, he demonstrated great patience and provided me with constant encouragement and support.
+TODO: Write the acknowledgement after the thesis body is stable.
 
-I would also like to express my sincere thanks to Professor Hidetoshi Shimodaira in our laboratory. 
-His insightful comments enabled me to revisit my research from a new perspective and helped me gain a deeper understanding of the essence of theoretical research.
-
-Moreover, I am extremely thankful to Dr.~Jongyeong Lee, who is my respected senior colleague and mentor. 
-His insightful advice and unwavering support have been important in my master's research journey. 
-This thesis is based on our joint work (with Professor Junya Honda), and I am deeply grateful for the opportunity to learn under his mentorship. 
-
-Next, I would like to thank all my lab mates for the pleasant atmosphere. 
-I would also like to thank my respected senior colleagues outside the laboratory for their kindness and encouragement. 
-
-Finally, I would like to express my deepest gratitude to my family for their unconditional love and support.
-
-
-
+\Appendix
+\input{appendix.tex}
 
 \bibliographystyle{icml2025}   % 文献スタイルの指定
 % \bibliographystyle{unsrt}
 \bibliography{reference.bib}
 %\bibliography{reference}        % 参考文献の出力
-% \Appendix[付録：付録１]       % 付録の開始
-\Appendix
-% \renewcommand{\thesection}{\Alph{section}}
-% \setcounter{section}{0}
-\input{7_appendix.tex}
 
 \end{document}

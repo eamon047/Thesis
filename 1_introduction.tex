@@ -1,268 +1,29 @@
 \section{Introduction}
+\label{chap:introduction}
 
-We live in a world full of uncertainty, such as climate change and market fluctuation. 
-People often have to make decisions in such environment, based on their limited information from the past. 
-\textit{Sequential decision-making under uncertainty} is a field that studies how to optimize the decision-making process in such an uncertain environment.
-The \textit{multi-armed bandit (MAB)} is a model in this field, which is often illustrated by a gambler playing slot machines. 
-It has been widely applied in practical scenarios, such as dynamic pricing \citep{misra2019dynamic}, clinical trials \citep{durand2018contextual} and recommendation systems \citep{zhou2017large}. 
-In this problem, the player has to choose one arm among multiple arms and incurs the loss from the chosen arm only. 
-The difficulty of this problem arises from the ``partial feedback'' nature, where the player is only able to observe the loss from the chosen arm. 
-Formally, at each round $t\in\qty[T]=\qty{1,2,\dots,T}$
-for
-%from
-time horizon $T$, the player chooses an arm $I_t$ out of
-%a set of
-$K$ arms. 
-The loss vector $\ell_t=\qty(\ell_{t,1},\ell_{t,2},\dots,\ell_{t,K})^\top\in\qty[0,1]^K$ is determined by the environment and the player could only observe the incurred loss $\ell_{t,I_t}$ from the chosen arm. 
-The player's objective is to minimize his/her cumulative loss over all rounds. 
-As a result, the player faces an \textit{exploration-exploitation trade-off}: whether to choose the arm that currently appears optimal or to explore the other arms that have potential to become truly optimal. The performance of the player is measured by the pseudo-regret, which describes the gap between the cumulative loss of the player and of the optimal arm fixed in hindsight.
-% defined as $\mathcal{R}(T)=\mathbb{E}\qty[\sum_{t=1}^T \ell_{t, I_t}] - \min_{i \in [K]} \mathbb{E}\qty[\sum_{t=1}^T \ell_{t, i}]$.
+This chapter will introduce the motivation and contribution of the thesis.
 
-% \honda{Since ICML is less theoretical than COLT and ALT, we should add a bit more words on practical motivation
-% (but since MAB is well known it does not have to be too long.)}
+\subsection{Motivation}
 
+TODO: Explain knowledge graph embedding based link prediction and why aggregate metrics such as Hits@10 are not sufficient for analyzing decision stability.
 
+\subsection{Problem Statement}
 
-Stochastic setting \citep{lai1985asymptotically,auer2002finite} and adversarial setting \citep{auer2002nonstochastic,audibert2009minimax} are two fundamental formulations of the environment to determine loss vectors.
-In the stochastic setting, the losses $\ell_{t,i}$ from arm $i$ are i.i.d.~from an unknown but fixed distribution over $[0,1]$
-with expectation $\mu_i$.
-The suboptimality gap is expressed by $\Delta_i=\mu_i - \mu_{i^*}$
-for the optimal arm $i^*\in{\arg\min}_{i\in\qty[K]}\mu_i$.
-The  optimal (problem-dependent) regret bound given these gaps is known to be $\sum_{i : \Delta_i > 0} O\qty(\frac{\log T}{\Delta_i})$ \citep{lai1985asymptotically}, which can be achieved by several policies such as UCB \citep{auer2002finite,cappe2013kullback} and Thompson sampling \citep{kaufmann2012thompson,pmlr-v31-agrawal13a,riou2020bandit}, some of which further improve the regret bound by incorporating the dependence on the loss distribution itself.
+TODO: Introduce predictive multiplicity as query-level instability among similarly performing models, then motivate the relation-level question.
 
-In the adversarial setting, the loss vectors $\ell_t$ are not assumed to follow any specific distribution, and the environment may choose them based on the history of the decisions. For this setting, the optimal regret bound $O(\sqrt{KT})$ \citep{auer2002nonstochastic} is achieved by some policies, including a family of policies called the Follow-the-Regularized-Leader (FTRL) with appropriate regularization functions \citep{audibert2009minimax,zimmert2019connections}.
+\subsection{Contributions}
 
+TODO: State the contributions after Chapters~\ref{chap:framework} and \ref{chap:experiments} are drafted.
+The current intended contribution structure is:
 
+\begin{itemize}
+    \item a relation-level analysis framework for predictive multiplicity in KGE link prediction;
+    \item a side-aware mapping type analysis showing the strongest structural pattern;
+    \item exploratory analysis of inverse-like support and symmetry as candidate relation-level factors;
+    \item a discussion of the scope and limitations of relation-level structural explanations.
+\end{itemize}
 
-\begin{comment}
-Stochastic setting \citep{lai1985asymptotically,auer2002finite} and adversarial setting \citep{auer2002nonstochastic,audibert2009minimax} are two fundamental formulations of the environment to determine loss vectors. 
+\subsection{Thesis Organization}
 
-In the stochastic setting, the loss vectors $\ell_t$ are independent and identically distributed (i.i.d.) from an unknown but fixed distribution $\mathcal{D}$ over $\qty[0,1]^K$. Define suboptimality gap as $\Delta_i=\mu_i - \mu_{i^*}$ for the expected loss of arms $\mu_i=\mathbb{E}_{\ell\sim\mathcal{D}}\qty[\ell_i]$ and the optimal arm $i^*\in{\arg\min}_{i\in\qty[K]}\mu_i$, then the  optimal (problem-dependent) regret bound given
-%suboptimality gap
-$\{\Delta_i\}$
-is known to be $\sum_{i : \Delta_i > 0} O\qty(\frac{\log T}{\Delta_i})$ \citep{lai1985asymptotically}, which can be achieved by several policies such as UCB \citep{auer2002finite,cappe2013kullback} and Thompson sampling \citep{kaufmann2012thompson,pmlr-v31-agrawal13a,riou2020bandit}, some of which further improve the regret bound by incorporating the dependence on $\mathcal{D}$ itself.
+TODO: Summarize the chapter organization after the final structure is fixed.
 
-In the adversarial setting, the loss vectors $\ell_t$ are not assumed to follow any specific distribution, and the environment may choose them based on the history of the decisions. For this setting, the optimal regret bound $O(\sqrt{KT})$ \citep{auer2002nonstochastic} is achieved by some policies, including a family of policies called the Follow-The-Regularized-Leader (FTRL) with appropriate regularization functions \citep{audibert2009minimax,zimmert2019connections}.
-\end{comment}
-
-In reality,
-%it is often unknown
-%about the environment to determine the loss,
-the environment to determine the loss is often unknown,
-%of the setting that the environment to determine the loss,
-and thus it becomes necessary to develop a policy that is optimal
-%able to achieve optimality
-in both stochastic and adversarial settings at the same time.
-%honda
-The Tsallis-INF policy \citep{JMLR:v22:19-753} is an FTRL-based policy that can overcome this difficulty.
-Tsallis-INF achieves $O(\sqrt{KT})$ regret in the adversarial setting and $\sum_{i\neq i^*}O\qty(\frac{\log T}{\Delta_i})$ regret in the stochastic setting,
-which is called a Best-of-Both-Worlds (BOBW, \citealp{bubeck2012best}) guarantee.
-%For this issue, the Tsallis-INF policy \citep{JMLR:v22:19-753}, which is based on FTRL framework, performs its effectiveness in achieving optimality in both settings.
-% although the leading factor of the $O\qty(\log T)$ term is a bit worse than policies which are specially designed for stochastic setting. Additionally, the Tsallis-INF policy requires the uniqueness of optimal arm.
-%Such status of algorithms is called Best-of-Both-Worlds (BOBW, \citep{bubeck2012best}), and
-It has also been shown that FTRL framework can achieve BOBW for the problems beyond the classic bandit problems, such as partial monitoring~\citep{tsuchiya2023best, tsuchiya2024stability} and combinatorial-semi bandits~\citep{zimmert2019beating,ito21a}.
-%\honda{other references would be more appropriate.}
-
-% \honda{The arguments above are a bit too long. In our paper, the regret guarantees are not of the first priority and can be much more concise.}
-
-
-One limitation of FTRL is that the arm-selection probability $w_t$ is required to be explicitly computed and stored in each round, which requires to solve an optimization problem involving a regularizer.
-This becomes problematic in some complex settings, and the framework of Follow-the-Perturbed-Leader (FTPL)
-is a promising candidate to overcome this limitation.
-FTPL greedily chooses an arm with the minimum cumulative estimated loss with some random perturbation
-and does not require to solve an optimization problem nor store the vector $w_t$.
-These properties have made FTPL effective across various online learning and bandit problems,
-including combinatorial semi-bandits~\citep{JMLR:v17:15-091}, online learning with non-linear losses~\citep{dudik2020oracle}, and MDP bandits~\citep{dai2022follow}, though the regret guarantees of FTPL are often somewhat weaker than FTRL.
-
-From the theoretical viewpoint, FTPL has also been studied for the standard MAB in terms of the duality between FTRL and FTPL,
-and
-\citet{kim2019optimality} raised an open problem that FTPL achieving $O(\sqrt{KT})$ regret (if exists) would have perturbations following Fr\'{e}chet-type distributions.
-As a solution to this conjecture, it has recently been proved that FTPL with Fr\'{e}chet perturbation with $\alpha=2$ achieves the BOBW guarantee \citep{pmlr-v201-honda23a},
-which was later extended to more general Fr\'{e}chet-type distributions with some mild conditions \citep{pmlr-v247-lee24a}.
-
-From the practical viewpoint, however,
-the advantage of FTPL for the standard MAB has been somewhat limited
-compared with the clear computational advantage of FTPL for complex problems.
-The reason is that FTPL and FTRL generally need an unbiased (or low-bias) estimator for the loss vector $\ell_t$ for each round.
-In FTRL,
-the Importance-Weighted (IW) estimator is often used,
-which is an unbiased estimator for $\ell_t$
-using the inverse of the arm-selection probability $w_{t,i}^{-1}$.
-On the other hand in FTPL, $w_{t}$ is not explicitly computed and the IW estimator becomes unavailable.
-
-%To address this problem, \citet{JMLR:v17:15-091} proposed a technique called Geometric Resampling (GR) to obtain an unbiased estimator
-%for $w_{t,i}^{-1}$, but
-%its computational cost becomes $O(K^2)$ per round in average.
-%On the other hand, $w_t$ for Tsallis-INF (i.e., FTRL with Tsallis-entropy regularizer) can be efficiently computed by, e.g., Newton's method,
-%whose computational cost per iteration is $O(K)$.
-%Though the required number of iterations to keep the theoretical guarantee is formally unknown\footnote{%
-%Very recently \citet{zimmertproductive} proposed an algorithm, TS-prod, which is related to the first-order approximation of
-%online mirror descent and Tsallis-INF.
-%This algorithm can provably achieve BOBW with a simple update rule without iteration,
-%but its empirical performance is not examined there.},
-%it is empirically known that $O(1)$ iterations is sufficient.
-%Therefore the the entire computational cost of Tsallis-INF per round becomes $O(K)$ in practice, which becomes more efficient
-%than FTPL with $O(K^2)$ cost.
-
-
-To address this problem, \citet{JMLR:v17:15-091} proposed a technique called Geometric Resampling (GR) to obtain an unbiased estimator
-for $w_{t,i}^{-1}$, but
-its computational cost is $O(K^2)$ per round in average.
-On the other hand, $w_t$ for Tsallis-INF (i.e., FTRL with Tsallis-entropy regularizer) can be efficiently computed by, e.g., Newton's method,
-whose computational cost per iteration is $O(K)$.
-Though the required number of iterations to keep the theoretical guarantee is formally unknown,
-it is empirically known that $O(1)$ iterations is sufficient.
-Therefore, the entire computational cost of Tsallis-INF per round becomes $O(K)$ in practice, which becomes more efficient
-than FTPL with $O(K^2)$ cost.
-%
-In addition, very recently \citet{zimmertproductive} proposed TS-Prod policy, which is related to the first-order approximation of
-online mirror descent and Tsallis-INF.
-TS-Prod provably achieves the BOBW guarantee with a simple update rule without iterations,
-though its empirical performance is worse than Tsallis-INF.
-
-\paragraph{Details of FTPL Literature}
-While originally proposed by \citet{hannan1957approximation}, FTPL gained significant attention for its computational efficiency and simplicity after \citet{kalai2005efficient} introduced it in the context of linear optimization. 
-These properties have made FTPL effective across various online learning and bandit settings, including combinatorial semi-bandits~\citep{JMLR:v17:15-091}, online learning with non-linear losses~\citep{dudik2020oracle}, and MDP bandits~\citep{dai2022follow}.
-Although variants of FTPL have been developed to improve computational efficiency by avoiding direct optimization, many either sacrifice theoretical performance compared to FTRLs or become computationally expensive when only partial information is available.
-For example, an earlier efficient FTPL algorithm was shown to suffer $O(T^{2/3})$ regret~\citep{awerbuch2004adaptive}, while another achieving $O(\sqrt{KT\log K})$ regret required $O(T^2)$ numerical operations per round~\citep{poland2005fpl}.
-This inefficiency in bandit settings comes from the nature of FTPL, which avoids explicit optimizations to compute importance weights in closed form.
-To address this issue, \citet{JMLR:v17:15-091} proposed GR in the line of combinatorial semi-bandits, whose reduction to MAB achieves $O(\sqrt{KT\log K})$ regret with $O(K^2)$ numerical operations per round.
-Further refinements by \citet{pmlr-v201-honda23a} and \citet{pmlr-v247-lee24a} showed that FTPL with GR can achieve optimal $O(\sqrt{KT})$ regret and even BOBW guarantees for MAB problems when using appropriately chosen perturbation distributions.
-However, in standard MAB problems, GR often incurs a higher computational cost than FTRL algorithms, despite FTRL requiring the solution of a convex optimization problem each round. 
-This observation contrasts with combinatorial bandit settings, where GR was initially introduced, and motivates the design of a more efficient resampling method for FTPL.
-
-
-% \begin{comment}
-% However, there exists a limitation of FTRL that the arm-selection probability $w_t$ is required to be explicitly computed in each round.
-% The computational complexity of $w_t$ is $O\qty(K)$ in most cases, which is acceptable, but it may perform very inenficently in some more complex setting. The Follow-the-Perturbed-Leader (FTPL) framework, characterized by the avoidance of optimization computations, is considered a candidate for overcoming this limitation, since this policy simply selects the arm $I_t$ with the least cumulative estimated loss with a random perturbation in each round. 
-% % which is specificly expressed as $I_t={\arg\min}_{i \in [K]} \qty{\hat{L}_{t,i} - r_{t,i}/\eta_t}$. Here, $I_t$ is the chosen arm, $r_{t,i}$ is the random perturbation following some distribution, $\eta_t$ is the exploration parameter or the learning rate, and $\hat{L}_{t,i}$ is an estimation of the cumulative loss $L_{t,i} = \sum_{s=1}^{t-1} \ell_{s,i}.$ 
-% \citet{kim2019optimality} proposed an open problem that FTPL that achieves minimax optimality (if exists) would have perturbations following Fr\'{e}chet-type distribution. Recently, it has been proved that FTPL with Fr\'{e}chet perturbations with $\alpha=2$ achieves $O\qty(\sqrt{KT})$ regret in adversarial bandits and $\sum_{i\neq i^*}O\qty(\frac{\log T}{\Delta_i})$ regret in stochastic bandits \citep{pmlr-v201-honda23a}, and FTPL with Fr\'{e}chet-type distribution satisfying some mild conditions can achieve $O\qty(\sqrt{KT})$ regret in adversarial bandits \citep{pmlr-v247-lee24a}, which resolve the open problem in combination.
-
-
-% Given the constraint of partial feedback, the Importance-Weighted (IW) estimator is employed in some policies such as FTRL to estimate the loss $\ell_t$ per round, which is expressed as $\hat{\ell}_t=\qty( \ell_{t, I_t} / w_{t, I_t}) e_{I_t}$. However, it becomes problematic to employ IW estimator in FTPL, where the arm-selection probability $w_{t,i}$ is not explicitly computed. To address this problem, \citet{JMLR:v17:15-091} proposed a technique called geometric resampling, which gives an unbiased estimator $\widehat{w_{t,i}^{-1}}$ for $w_{t,i}^{-1}$ with computational cost of $O\qty(K^2)$ per round. As the factor of the the $K^2$ term is relatively small, FTPL with geometric resampling has a considerably fast runtime when $K$ is not too large. However, it suffers from a significant disadvantage in computational speed when dealing with a large set of arms, presenting a challenge to constructing an FTPL counterpart for FTRL.
-
-% \end{comment}
-
-
-\paragraph{Contribution of the Thesis}
-%\subsection{Contribution of the Paper}
-This thesis proposes a novel technique
-which we call
-%called
-Conditional Geometric Resampling (CGR),
-which gives unbiased or low-bias
-estimators
-%$\widehat{w_{t,i}^{-1}}$
-for $w_{t,i}^{-1}$ in FTPL.
-The idea behind the technique is that,
-while the original GR ``faithfully'' simulates the arm-selection procedure of FTPL by resampling the perturbation until termination,
-CGR resamples the perturbation only
-from those satisfying a necessary condition for termination.
-By appropriately choosing this necessary condition we can significantly reduce the required number of resampling $M_t$
-while keeping the complexity of resampling once to be $O(K)$.
-
-We propose three variants of CGR (CGR~I, II-unbiased, II-biased),
-all of which achieve the quasi-linear average complexity of $O(K\log K)$
-%all of which reduce the average computational cost to $O\qty(K\log K)$ from
-%that of the original GR of $O\qty(K^2)$
-without sacrificing the regret of the original GR with $O(K^2)$ complexity.
-These variants differ in the detailed guarantees and requirements,
-which are summarized in Table~\ref{tab:bound}.
-In summary, while the complexity guarantee of CGR~II is stronger than CGR~I,
-CGR~II requires that the cumulative distribution $F(x)$ and its inverse are computable.
-%the requirement is less restrictive in CGR~I than in CGR~II.
-%in the order of CGR~I, CGR~II-unbiased and CGR~II-biased,
-%the requirements also become stronger in this order.
-%In summary, while the complexity guarantee becomes stronger
-%in the order of CGR~I, CGR~II-unbiased and CGR~II-biased,
-%the requirements also become stronger in this order.
-Furthermore, CGR significantly improves the regret from FTPL with GR empirically
-thanks to the reduced variance of the estimators as we will see in Chapter~\ref{sect_exp}.
-
-This thesis is based on a paper published at ICML 2025 \citep{chen2025cgr}.
-
-%, however, they differ in their ability to meet specific performance requirements and adapt to various perturbation distributions.
-%Depending on the guarantees on the complexity
-%% (average given $\hat{L}_t$, average given $(\hat{L}_t,I_t)$, or worst-case)
-%This technique builds on the foundation of geometric resampling with improvements to the resampling method.
-%We provide three variants of conditional geometric resampling, which are respectively called CGR~I, CGR~II-unbiased, CGR~II-biased. All three variants reduce the computational cost of the original geometric resampling from $O\qty(K^2)$ to $O\qty(K\log K)$, however, they differ in their ability to meet specific performance requirements and adapt to various perturbation distributions.
-
-%\begin{table*}[t]
-%    \centering
-%    \caption{Some guarantees and requirements for perturbation distributions of original geometric resampling (GR) and conditional geometric resampling (CGR). Note that \citet{JMLR:v17:15-091} considers combinatorial semi-bandits, $m$ in row 2 denotes the $\ell_1$-norm budget for each action. The last column discusses whether FTPL with the corresponding algorithm can achieve BOBW. For FTPL with GR, CGR~I and CGR~II-unbiased, they achieve BOBW if perturbations follow some specific distributions such as Fr\'{e}chet distributions with shape $2$.}
-%    \setlength{\tabcolsep}{2pt} 
-%    {\fontsize{8}{15}\selectfont
-%    \begin{tabular}{@{}ccccccc@{}}
-%    \toprule
-%    \textbf{Algorithms}  & $\mathbb{E}\qty[M_t]$ & $\mathbb{E}\qty[M_t\middle| \hat{L}_t]$ & $\mathbb{E}\qty[M_t\middle| \hat{L}_t,I_t]$ & $G_t$ & \textbf{Requirements for $\mathcal{D}$} & \textbf{BOBW}\\
-%    \midrule
-%    \textbf{GR}          &  $O\qty(K)$  & $O\qty(K)$  & Unbounded & $\infty$ & None & Depend on $\mathcal{D}$\\
-%    \textbf{GR} \citep{JMLR:v17:15-091}          &  $O\qty(K)$  & $O\qty(K)$  & $O\qty(\sqrt{\frac{KT}{m}})$ & $\lceil \sqrt{\frac{KT}{m}}\rceil$ &  Standard exponential distribution & No\\
-%    \textbf{CGR~I} &  $O\qty(\log K)$ & $O\qty(\log K)$ & Unbounded & $\infty$ & None & Depend on $\mathcal{D}$\\
-%    \textbf{CGR~II-unbiased} &  $O\qty(\log K)$ & $O\qty(\log K)$ & Unbounded & $\infty$ & Specific forms of $F\qty(x)$ and $F^{-1}\qty(x)$ known & Depend on $\mathcal{D}$\\
-%    \textbf{CGR~II-unbiased with $\mathcal{F}_2$} &  $O\qty(\log K)$ & $O\qty(\log K)$ & $O\qty(K)$ & $\infty$ & Fr\'{e}chet distributions with shape $2$ & Yes\\
-%    \textbf{CGR~II-biased} & $O\qty(\log K)$ & $O\qty(\log K)$ & $O\qty(K)$ & $\left\lceil(K\lor 4)\log t\right\rceil$ & Fr\'{e}chet distributions with shape $2$ & Yes\\
-%    \bottomrule
-%    \end{tabular}
-%    }
-%    \label{tab:bound}
-%\end{table*}
-
-
-
-\begin{table}[b]
-    \centering
-    \vspace{-0.6em}
-    \caption{Guarantees and computational requirements on the CDF of the perturbation
-for original geometric resampling (GR) and conditional geometric resampling (CGR).
-Note that \citet{JMLR:v17:15-091} considers combinatorial semi-bandits and the result here is the one when applied to the MAB.
-The last column is the regret guarantee under appropriate choice of perturbation distribution,
-which is exponential distribution $\mathcal{E}_1$ with unit scale for \citet{JMLR:v17:15-091},
-Fr\'echet-type distributions with some conditions in \citet[Theorem 2]{pmlr-v247-lee24a} for GR, CGR I, CGR II-unbiased, and
-the Fr\'echet distribution $\mathcal{F}_2$ with shape $2$ for CGR II-biased.}
-\vspace{0.1in} 
-    {\setlength{\tabcolsep}{6pt}
-    \fontsize{10}{16}\selectfont
-    \begin{tabular}{@{}cccc@{}}
-    \toprule
-    \textbf{Algorithms}  & $\mathbb{E}\qty[M_t]$ & $\mathbb{E}\qty[M_t\middle| \hat{L}_t]$ & $\mathbb{E}\qty[M_t\middle| \hat{L}_t,I_t]$ \\
-%    \textbf{Algorithms}  & $\mathbb{E}\qty[M_t]$ & $\mathbb{E}\qty[M_t\middle| \hat{L}_t]$ & $\mathbb{E}\qty[M_t\middle| \hat{L}_t,I_t]$ & Worst-case $M_t$ & \textbf{Computational Requirement} & \textbf{Regret Bounds}\\
-    \midrule
-    \textbf{GR}          &  $O\qty(K)$  & $O\qty(K)$  & Unbounded \\
-    \textbf{GR} \citep{JMLR:v17:15-091}          &  $O\qty(K)$  & $O\qty(K)$  & $O(\sqrt{KT})$ (under $\mathcal{E}_1$)\\
-    \textbf{CGR~I} &  $O\qty(\log K)$ & $O\qty(\log K)$ & Unbounded\\
-    \textbf{CGR~II-unbiased} &  $O\qty(\log K)$ & $O\qty(\log K)$ & $O\qty(K)$ (under $\mathcal{F}_2$)\\
-    \textbf{CGR~II-biased} & $O\qty(\log K)$ & $O\qty(\log K)$ & $O\qty(K)$ (under $\mathcal{F}_2$)\\
-    \bottomrule
-    \end{tabular}
-    }
-    \vskip 10pt
-    {\setlength{\tabcolsep}{4pt}
-    \fontsize{10}{16}\selectfont
-    \begin{tabular}{@{}cccc@{}}
-    \toprule
-    \textbf{Algorithms}  & Worst-case $M_t$ & Computational Requirement & Regret Bounds\\
-%    \textbf{Algorithms}  & $\mathbb{E}\qty[M_t]$ & $\mathbb{E}\qty[M_t\middle| \hat{L}_t]$ & $\mathbb{E}\qty[M_t\middle| \hat{L}_t,I_t]$ & Worst-case $M_t$ & \textbf{Computational Requirement} & \textbf{Regret Bounds}\\
-    \midrule
-    \textbf{GR}          & Unbounded & None & BOBW\\
-    \textbf{GR} \citep{JMLR:v17:15-091}          & $\Big\lceil \sqrt{KT}\Big\rceil$ (under $\mathcal{E}_1$)&  None& Adversarial\\
-    \textbf{CGR~I} & Unbounded & None & BOBW\\
-    \textbf{CGR~II-unbiased} & Unbounded & Explicit $F\qty(x)$ and $F^{-1}\qty(x)$ & BOBW\\
-    \textbf{CGR~II-biased} & $\left\lceil(K\lor 4)\log t\right\rceil$ (under $\mathcal{F}_2$)& Explicit $F\qty(x)$ and $F^{-1}\qty(x)$ & BOBW\\
-    \bottomrule
-    \end{tabular}
-    }
-    \vspace{-0.8em}
-    \label{tab:bound}
-\end{table}
-
-
-% CGR~I gives an unbiased estimator $\widehat{w_{t,i}^{-1}}$ for $w_{t,i}^{-1}$ with much lower computational cost. In this algorithm, we use a value-swapping technique, which enables resampling from the conditional distribution of the perturbation distribution with almost no increase in computation time. Since value-swapping does not rely on the intrinsic properties of the perturbation distribution, CGR~I is applicable to any perturbation distributions. 
-
-% Compared to CGR~I, CGR~II resamples from a more constrained conditional distribution, further increasing the probability of termination in each round. Since CGR~II has to resample from the conditional distribution, it requires the knowledge of the specific form of cumulative distribution function and its inverse. With the guarantee of the expected times of resampling, CGR~II also ensures that the expected times of resampling given the chosen arm is $O\qty(K)$. While CGR~II-unbiased also gives an unbiased estimator for $w_{t,i}^{-1}$, CGR~II-biased utilizes a setting of deterministic bound, which is called maximum resampling, introducing some bias to the estimator. To guarantee that the bias doesn't hurt the regret too much, we constrain the perturbations to follow Fr\'{e}chet distributions with shape $2$. Under this setting, our analysis shows that the bias contributes only an additional $K\log T$ term to the regret with a leading factor of $1$.
-
-% \honda{I think that the above two paragraphs are a bit too detailed and not necessary.}
-
-
-%\subsection{Related Work}
-%\honda{I moved some of related work to the main section and moved others to the appendix so that the flow of the discussion looks more natural.}
