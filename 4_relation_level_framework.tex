@@ -1,15 +1,171 @@
-\section{Relation-Level Structural Analysis Framework}
+\section{Relation-Level Analysis Framework}
 \label{chap:framework}
 
-This chapter will define the relation-level analysis framework used in the experiments.
+The previous chapter introduced predictive multiplicity as a way to measure
+query-level instability among comparable prediction outputs.
+This chapter defines the relation-level analysis framework used in this thesis.
+The goal is not only to ask whether predictive multiplicity exists, but also to
+identify where it is concentrated in the structure of a knowledge graph.
+
+The basic unit of link prediction evaluation is a query generated from a test
+triple.
+However, in this thesis, the question is not only whether individual queries are
+solved consistently, but also whether such instability is concentrated in
+particular relations.
+Therefore, we aggregate query-level outcomes into relation-level statistics and
+compare these statistics across candidate structural factors.
+
+This chapter first defines the relation-level aggregation procedure, then
+introduces the relation-level metrics and the structural factors that are used 
+in the experimental chapter.
 
 \subsection{Relation-Level Aggregation}
 
-TODO: Define relation-level aggregation over link prediction queries.
+Let $\mathcal{E}$ be the set of entities and $\mathcal{R}$ be the set of
+relations.
+A knowledge graph consists of triples $(h,r,t) \in
+\mathcal{E}\times\mathcal{R}\times\mathcal{E}$, where $h$ is the head entity,
+$r$ is the relation, and $t$ is the tail entity.
+In the standard link prediction setting, each test triple $(h,r,t)$ gives
+ two prediction queries:
+\begin{align}
+    q^{\mathrm{head}} = (?,r,t),
+    \qquad
+    q^{\mathrm{tail}} = (h,r,?).
+\end{align}
+The first query asks the model to recover the missing head entity, while the
+second asks it to recover the missing tail entity.
 
-\subsection{Relation-Level Metrics}
+For each relation $r$, let $\mathcal{Q}^{\mathrm{head}}_r$ and
+$\mathcal{Q}^{\mathrm{tail}}_r$ denote the sets of head-prediction and
+tail-prediction queries whose relation is $r$, respectively.
+We also write
+\begin{align}
+    \mathcal{Q}_r
+    =
+    \mathcal{Q}^{\mathrm{head}}_r
+    \cup
+    \mathcal{Q}^{\mathrm{tail}}_r
+\end{align}
+for the combined query set of relation $r$.
+If relation $r$ appears in $n_r$ test triples, then
+$|\mathcal{Q}^{\mathrm{head}}_r|=|\mathcal{Q}^{\mathrm{tail}}_r|=n_r$ and
+$|\mathcal{Q}_r|=2n_r$.
+We call $n_r$ the test support of relation $r$, because it gives the
+number of test triples available for computing relation-level statistics.
 
-TODO: Define $hits_r$, $\alpha_r$, and $\delta_r$.
+The relation-level aggregation used in this thesis computes predictive
+performance and multiplicity statistics for each relation separately.
+This choice is important for two reasons.
+Firstly, it prevents a small number of high-support relations from dominating the
+analysis.
+Secondly, it makes it possible to compare relations as structural units.
+Instead of asking only whether the entire test set has high or low
+multiplicity, we ask whether relations with different structural properties
+show systematically different multiplicity behavior.
+
+In addition to the combined relation-level view over $\mathcal{Q}_r$, this
+thesis keeps the prediction side when it is structurally relevant.
+For example, many-to-one and one-to-many mapping patterns have different
+implications for head prediction and tail prediction.
+Therefore, the main mapping-type analysis in Chapter~\ref{chap:experiments}
+uses side-aware relation-level aggregation over
+$\mathcal{Q}^{\mathrm{head}}_r$ and $\mathcal{Q}^{\mathrm{tail}}_r$, rather
+than relying only on the combined set $\mathcal{Q}_r$.
+
+All ranking results are interpreted under the filtered evaluation convention,
+which means that when a query is evaluated, other known true answers for the 
+same query are removed before ranking.
+Consequently, a lower Hits@10 or higher multiplicity for a structurally harder
+prediction direction should not be interpreted simply as an artifact of
+multiple true answers competing with each other in an unfiltered candidate set.
+On the contrary, it indicates that even after filtering known true answers, 
+the ranking decision for that relation direction remains more difficult or less
+stable across repeated outputs.
+
+\subsection{Relation-Level Aggregation of Metrics}
+
+Chapter~\ref{chap:predictive_multiplicity} introduces Hits@10, ambiguity, and
+discrepancy as metrics for link prediction performance and predictive
+multiplicity.
+Here, we define how these metrics are aggregated for each relation.
+
+Let $\mathcal{M}$ be the set of repeated prediction outputs used in the
+analysis.
+In this thesis, these outputs come from repeated runs of the same KGE model
+family with different random seeds.
+For a query $q$ and an output $m \in \mathcal{M}$, let
+\begin{align}
+    H_m(q) =
+    \begin{cases}
+        1, & \text{if output } m \text{ ranks the correct entity within top-}k,\\
+        0, & \text{otherwise.}
+    \end{cases}
+\end{align}
+In the experiments, we use $k=10$.
+
+For relation $r$, the relation-level Hits@10 is computed by averaging the
+hit indicator over the queries of relation $r$ and over repeated outputs:
+\begin{align}
+    hits_r
+    =
+    \frac{1}{|\mathcal{M}|\,|\mathcal{Q}_r|}
+    \sum_{m\in\mathcal{M}}
+    \sum_{q\in\mathcal{Q}_r}
+    H_m(q).
+\end{align}
+When the prediction side is analyzed separately, $\mathcal{Q}_r$ is replaced by
+$\mathcal{Q}^{\mathrm{head}}_r$ or $\mathcal{Q}^{\mathrm{tail}}_r$.
+
+The multiplicity metrics are computed on a relation-specific eligible subset.
+For relation $r$, we define
+\begin{align}
+    \mathcal{Q}^{\mathrm{elig}}_r
+    =
+    \{q\in\mathcal{Q}_r \mid \max_{m\in\mathcal{M}} H_m(q)=1\}.
+\end{align}
+This subset contains queries for which at least one repeated output succeeds
+within top-$k$.
+Queries missed by all outputs are treated as shared failures.
+They are not used to measure disagreement among successful and unsuccessful
+outputs.
+
+The relation-level ambiguity score is then defined as
+\begin{align}
+    \alpha_r
+    =
+    \frac{1}{|\mathcal{Q}^{\mathrm{elig}}_r|}
+    \sum_{q\in\mathcal{Q}^{\mathrm{elig}}_r}
+    \mathbf{1}
+    \left[
+        \exists m,m'\in\mathcal{M}
+        \text{ such that }
+        H_m(q)\neq H_{m'}(q)
+    \right].
+\end{align}
+Thus, $\alpha_r$ measures how often the repeated outputs disagree on the
+top-$k$ hit-or-miss decision, among the queries where at least one output is
+able to hit.
+
+The relation-level discrepancy score uses the same eligible subset.
+Let $m_0$ denote the reference output used in the multiplicity computation.
+We define
+\begin{align}
+    \delta_r
+    =
+    \max_{m\in\mathcal{M}}
+    \frac{1}{|\mathcal{Q}^{\mathrm{elig}}_r|}
+    \sum_{q\in\mathcal{Q}^{\mathrm{elig}}_r}
+    \mathbf{1}\left[H_m(q)\neq H_{m_0}(q)\right].
+\end{align}
+This metric measures the largest hit-or-miss disagreement between the reference
+output and another repeated output for relation $r$.
+
+The eligible subset is important for interpretation.
+Both $\alpha_r$ and $\delta_r$ measure instability among outputs on queries
+where success is observed at least once.
+They should not be read as error rates over all test queries of relation $r$.
+This distinction is used throughout the experimental chapter.
 
 \subsection{Prediction Side}
 
@@ -34,4 +190,3 @@ TODO: Define symmetry and explain the self-loop caveat.
 \subsubsection{Relation Frequency}
 
 TODO: Keep relation frequency as a pending support/sparsity control analysis until its role is confirmed.
-

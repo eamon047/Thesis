@@ -20,6 +20,7 @@ main.pdf
 # Editor and OS files
 .DS_Store
 .vscode/
+AGENTS.md
 
 # Local backups
 backup.zip
