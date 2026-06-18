@@ -88,84 +88,98 @@ stable across repeated outputs.
 Chapter~\ref{chap:predictive_multiplicity} introduces Hits@10, ambiguity, and
 discrepancy as metrics for link prediction performance and predictive
 multiplicity.
-Here, we define how these metrics are aggregated for each relation.
+The relation-level versions use the following aggregation.
 
-Let $\mathcal{M}$ be the set of repeated prediction outputs used in the
-analysis.
-In this thesis, these outputs come from repeated runs of the same KGE model
-family with different random seeds.
-For a query $q$ and an output $m \in \mathcal{M}$, let
+For a fixed dataset and KGE model family, let $\mathcal{O}$ be the set of
+complete evaluation outputs produced by repeated training runs with different
+random seeds.
+Each output $o\in\mathcal{O}$ contains the rankings assigned by one trained run
+to all evaluated test queries.
+Each evaluated item consists of a query and its correct answer entity.
+We write it as $\tau=(q,e)$, where $q$ is a head-prediction or tail-prediction
+query and $e$ is the held-out correct answer.
+For relation $r$, let $\mathcal{T}_r$ be the set of such evaluated items
+corresponding to $\mathcal{Q}_r$.
+For an output $o \in \mathcal{O}$ and an evaluated item $\tau=(q,e)$, define
 \begin{align}
-    H_m(q) =
+    T_k(o,\tau) =
     \begin{cases}
-        1, & \text{if output } m \text{ ranks the correct entity within top-}k,\\
+        1, & \text{if output } o \text{ ranks } e \text{ within top-}k,\\
         0, & \text{otherwise.}
     \end{cases}
 \end{align}
 In the experiments, we use $k=10$.
 
 For relation $r$, the relation-level Hits@10 is computed by averaging the
-hit indicator over the queries of relation $r$ and over repeated outputs:
+top-$k$ decision over the evaluated items of relation $r$ and over repeated
+outputs:
 \begin{align}
     hits_r
     =
-    \frac{1}{|\mathcal{M}|\,|\mathcal{Q}_r|}
-    \sum_{m\in\mathcal{M}}
-    \sum_{q\in\mathcal{Q}_r}
-    H_m(q).
+    \frac{1}{|\mathcal{O}|\,|\mathcal{T}_r|}
+    \sum_{o\in\mathcal{O}}
+    \sum_{\tau\in\mathcal{T}_r}
+    T_k(o,\tau).
 \end{align}
-When the prediction side is analyzed separately, $\mathcal{Q}_r$ is replaced by
-$\mathcal{Q}^{\mathrm{head}}_r$ or $\mathcal{Q}^{\mathrm{tail}}_r$.
+When the prediction side is analyzed separately, $\mathcal{T}_r$ is replaced by
+the corresponding head-prediction or tail-prediction evaluated-item set.
 
 The multiplicity metrics are computed on a relation-specific eligible subset.
+% NOTE: The eligible subset excludes query-answer items missed by all repeated
+% outputs. Without this restriction, all-miss items would be counted as
+% "stable" because every output gives the same miss decision. This can make a
+% very difficult relation look low-multiplicity simply because all runs fail on
+% many of its queries. The eligible subset keeps alpha_r and delta_r focused on
+% evaluated items where success is observed at least once, so the metrics
+% measure whether that success is stable across repeated outputs.
 For relation $r$, we define
 \begin{align}
-    \mathcal{Q}^{\mathrm{elig}}_r
+    \mathcal{T}^{\mathrm{elig}}_r
     =
-    \{q\in\mathcal{Q}_r \mid \max_{m\in\mathcal{M}} H_m(q)=1\}.
+    \{\tau\in\mathcal{T}_r \mid \max_{o\in\mathcal{O}} T_k(o,\tau)=1\}.
 \end{align}
-This subset contains queries for which at least one repeated output succeeds
-within top-$k$.
-Queries missed by all outputs are treated as shared failures.
-They are not used to measure disagreement among successful and unsuccessful
-outputs.
+This subset contains evaluated items for which at least one repeated output
+succeeds within top-$k$.
+Evaluated items missed by all outputs are treated as shared failures.
+They are excluded from the denominator of the multiplicity metrics.
 
+Let $o_0$ denote the reference output used in the multiplicity computation.
+Following the notation of Chapter~\ref{chap:predictive_multiplicity}, define
+the conflict indicator
+\begin{align}
+    \Delta(o,\tau)
+    =
+    \mathbf{1}\left[T_k(o,\tau)\neq T_k(o_0,\tau)\right].
+\end{align}
 The relation-level ambiguity score is then defined as
 \begin{align}
     \alpha_r
     =
-    \frac{1}{|\mathcal{Q}^{\mathrm{elig}}_r|}
-    \sum_{q\in\mathcal{Q}^{\mathrm{elig}}_r}
-    \mathbf{1}
-    \left[
-        \exists m,m'\in\mathcal{M}
-        \text{ such that }
-        H_m(q)\neq H_{m'}(q)
-    \right].
+    \frac{1}{|\mathcal{T}^{\mathrm{elig}}_r|}
+    \sum_{\tau\in\mathcal{T}^{\mathrm{elig}}_r}
+    \max_{o\in\mathcal{O}}
+    \Delta(o,\tau).
 \end{align}
-Thus, $\alpha_r$ measures how often the repeated outputs disagree on the
-top-$k$ hit-or-miss decision, among the queries where at least one output is
-able to hit.
+$\alpha_r$ measures the proportion of eligible evaluated items for which at
+least one repeated output conflicts with the reference output.
 
 The relation-level discrepancy score uses the same eligible subset.
-Let $m_0$ denote the reference output used in the multiplicity computation.
 We define
 \begin{align}
     \delta_r
     =
-    \max_{m\in\mathcal{M}}
-    \frac{1}{|\mathcal{Q}^{\mathrm{elig}}_r|}
-    \sum_{q\in\mathcal{Q}^{\mathrm{elig}}_r}
-    \mathbf{1}\left[H_m(q)\neq H_{m_0}(q)\right].
+    \max_{o\in\mathcal{O}}
+    \frac{1}{|\mathcal{T}^{\mathrm{elig}}_r|}
+    \sum_{\tau\in\mathcal{T}^{\mathrm{elig}}_r}
+    \Delta(o,\tau).
 \end{align}
-This metric measures the largest hit-or-miss disagreement between the reference
+$\delta_r$ measures the largest hit-or-miss disagreement between the reference
 output and another repeated output for relation $r$.
 
-The eligible subset is important for interpretation.
-Both $\alpha_r$ and $\delta_r$ measure instability among outputs on queries
-where success is observed at least once.
-They should not be read as error rates over all test queries of relation $r$.
-This distinction is used throughout the experimental chapter.
+Because the denominator is $\mathcal{T}^{\mathrm{elig}}_r$, $\alpha_r$ and
+$\delta_r$ should be interpreted as instability among evaluated items where
+success is observed at least once, not as error rates over all test queries of
+relation $r$.
 
 \subsection{Prediction Side}
 
