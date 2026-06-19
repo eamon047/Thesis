@@ -89,6 +89,10 @@ Chapter~\ref{chap:predictive_multiplicity} introduces Hits@10, ambiguity, and
 discrepancy as metrics for link prediction performance and predictive
 multiplicity.
 The relation-level versions use the following aggregation.
+% TODO: After Chapter 3 is written, shorten this subsection if the definitions
+% of T_k, Delta, alpha, and delta are already fully introduced there. This
+% subsection should retain only the relation-level aggregation over T_r and
+% T_r^{elig}, together with any thesis-specific implementation details.
 
 For a fixed dataset and KGE model family, let $\mathcal{O}$ be the set of
 complete evaluation outputs produced by repeated training runs with different
@@ -181,17 +185,15 @@ $\delta_r$ should be interpreted as instability among evaluated items where
 success is observed at least once, not as error rates over all test queries of
 relation $r$.
 
-\subsection{Prediction Side}
-
-TODO: Explain why head prediction and tail prediction should be analyzed separately.
-
 \subsection{Candidate Structural Factors}
 
 TODO: Introduce the candidate relation-level structural factors.
 
 \subsubsection{Mapping Type}
 
-TODO: Define one-to-one, one-to-many, many-to-one, and many-to-many mapping types.
+TODO: Define one-to-one, one-to-many, many-to-one, and many-to-many mapping
+types. Explain here why mapping type must be interpreted with prediction side,
+and why the mapping-type experiments use side-aware aggregation.
 
 \subsubsection{Inverse-Like Support}
 
