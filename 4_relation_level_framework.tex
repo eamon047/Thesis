@@ -196,15 +196,13 @@ Therefore, this thesis focuses on relation-level factors that may affect the
 ambiguity of the answer space or the structural support available in the
 training graph.
 The factors considered here are not an exhaustive list of knowledge graph
-patterns.
-Compositional patterns, transitive relations, and other higher-order structures
-may also affect link prediction stability.
-The present framework uses three relation-level factors that are directly
-operationalized from the training graph and can be compared with the
-relation-level metrics defined above: mapping type, inverse, and symmetry.
-Relation frequency is treated separately in Chapter~\ref{chap:experiments} as a
-support and sparsity control, rather than as a structural pattern of the same
-kind.
+patterns. For example, compositional patterns, transitive relations, and other
+higher-order structures may also affect link prediction stability.
+
+The present framework considers three structural factors computed from the
+training graph: mapping type, inverse support, and symmetry. Since each factor
+is defined at the relation level, it can be compared directly with the
+relation-level Hits@10, ambiguity, and discrepancy metrics defined above.
 
 Let the training graph be
 \begin{align}
@@ -246,10 +244,14 @@ A side is classified as many only when the corresponding average connectivity is
 greater than $1.5$.
 This gives four mapping types:
 \begin{itemize}
-    \item $1$-$1$: neither side is many;
-    \item $1$-$N$: the tail side is many, but the head side is not;
-    \item $M$-$1$: the head side is many, but the tail side is not;
-    \item $M$-$N$: both sides are many.
+    \item $1$-$1$: $d_{\mathrm{head}}(r)\leq 1.5$ and
+    $d_{\mathrm{tail}}(r)\leq 1.5$; neither side is many;
+    \item $1$-$N$: $d_{\mathrm{head}}(r)\leq 1.5$ and
+    $d_{\mathrm{tail}}(r)>1.5$; the tail side is many;
+    \item $M$-$1$: $d_{\mathrm{head}}(r)>1.5$ and
+    $d_{\mathrm{tail}}(r)\leq 1.5$; the head side is many;
+    \item $M$-$N$: $d_{\mathrm{head}}(r)>1.5$ and
+    $d_{\mathrm{tail}}(r)>1.5$; both sides are many.
 \end{itemize}
 
 These labels are operational categories rather than exact semantic laws.
