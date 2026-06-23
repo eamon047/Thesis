@@ -94,11 +94,15 @@ The relation-level versions use the following aggregation.
 % subsection should retain only the relation-level aggregation over T_r and
 % T_r^{elig}, together with any thesis-specific implementation details.
 
-For a fixed dataset and KGE model family, let $\mathcal{O}$ be the set of
-complete evaluation outputs produced by repeated training runs with different
-random seeds.
-Each output $o\in\mathcal{O}$ contains the rankings assigned by one trained run
-to all evaluated test queries.
+For a fixed dataset, KGE model family, and hyperparameter setting, the same
+configuration is trained multiple times with different random seeds.
+Let $\mathcal{O}=\{o_1,\ldots,o_m\}$ denote the resulting set of complete
+evaluation outputs.
+Here, $o_i$ is the output of the $i$-th seed run on all evaluated test items,
+not the output for a single query.
+It records the rank assigned to the correct answer entity for each evaluated
+item.
+We use $o$ as a generic element of $\mathcal{O}$ in the definitions below.
 Each evaluated item consists of a query and its correct answer entity.
 We write it as $\tau=(q,e)$, where $q$ is a head-prediction or tail-prediction
 query and $e$ is the held-out correct answer.
@@ -187,22 +191,212 @@ relation $r$.
 
 \subsection{Candidate Structural Factors}
 
-TODO: Introduce the candidate relation-level structural factors.
+Predictive multiplicity is a top-$k$ ranking instability.
+Therefore, this thesis focuses on relation-level factors that may affect the
+ambiguity of the answer space or the structural support available in the
+training graph.
+The factors considered here are not an exhaustive list of knowledge graph
+patterns.
+Compositional patterns, transitive relations, and other higher-order structures
+may also affect link prediction stability.
+The present framework uses three relation-level factors that are directly
+operationalized from the training graph and can be compared with the
+relation-level metrics defined above: mapping type, inverse, and symmetry.
+Relation frequency is treated separately in Chapter~\ref{chap:experiments} as a
+support and sparsity control, rather than as a structural pattern of the same
+kind.
+
+Let the training graph be
+\begin{align}
+    \mathcal{G}_{\mathrm{train}}
+    \subseteq
+    \mathcal{E}\times\mathcal{R}\times\mathcal{E}.
+\end{align}
+For each relation $r$, define its directed edge set in the training graph as
+\begin{align}
+    E_r
+    =
+    \{(h,t)\mid (h,r,t)\in\mathcal{G}_{\mathrm{train}}\}.
+\end{align}
+All structural factors in this section are computed from
+$\mathcal{G}_{\mathrm{train}}$.
 
 \subsubsection{Mapping Type}
 
-TODO: Define one-to-one, one-to-many, many-to-one, and many-to-many mapping
-types. Explain here why mapping type must be interpreted with prediction side,
-and why the mapping-type experiments use side-aware aggregation.
+\emph{Mapping type} describes how many heads and tails are connected by a
+relation in the training graph.
+Following the LibKGE/Bordes-style convention used in the experiments, two
+average connectivity values are computed for each relation:
+\begin{align}
+    d_{\mathrm{tail}}(r)
+    &=
+    \frac{|E_r|}
+    {|\{h\mid \exists t,\ (h,t)\in E_r\}|},
+    \\
+    d_{\mathrm{head}}(r)
+    &=
+    \frac{|E_r|}
+    {|\{t\mid \exists h,\ (h,t)\in E_r\}|}.
+\end{align}
+$d_{\mathrm{tail}}(r)$ is the average number of tail entities per observed
+$(h,r)$ pair.
+$d_{\mathrm{head}}(r)$ is the average number of head entities per observed
+$(r,t)$ pair.
+A side is classified as many only when the corresponding average connectivity is
+greater than $1.5$.
+This gives four mapping types:
+\begin{itemize}
+    \item $1$-$1$: neither side is many;
+    \item $1$-$N$: the tail side is many, but the head side is not;
+    \item $M$-$1$: the head side is many, but the tail side is not;
+    \item $M$-$N$: both sides are many.
+\end{itemize}
 
-\subsubsection{Inverse-Like Support}
+These labels are operational categories rather than exact semantic laws.
+For example, in FB15k-237, \texttt{/location/us\_county/county\_seat} is a
+$1$-$1$ relation under this rule, while
+\texttt{/location/country/second\_level\_divisions} is $1$-$N$ because one
+country can be connected to many second-level divisions.
+Similarly, \texttt{/people/person/gender} is $M$-$1$, and
+\texttt{/olympics/olympic\_games/sports} is $M$-$N$.
 
-TODO: Define the inverse-like metrics used in the thesis, including the stricter high-confidence metrics.
+Mapping type must be interpreted together with prediction side.
+In a $1$-$N$ relation, tail prediction asks the model to select one entity from
+a structurally many-valued side, while head prediction is closer to selecting
+the single-side entity.
+The reverse holds for $M$-$1$ relations.
+For this reason, the mapping-type analysis in Chapter~\ref{chap:experiments}
+uses side-aware relation-level aggregation rather than only the combined
+head-and-tail view.
+
+\subsubsection{Inverse}
+
+In this thesis, \emph{inverse} refers to operational inverse support computed
+from reversed edge overlap in the training graph, rather than manually verified
+semantic inverse relations.
+For two relations $r_1$ and $r_2$, if triples of the form $(h,r_1,t)$ are often
+accompanied by triples of the form $(t,r_2,h)$, then $r_2$ provides inverse
+support for $r_1$.
+For example, the FB15k-237 \texttt{campus-to-institution} relation and
+\texttt{institution-to-campus} relation form an intuitive inverse case: a
+\texttt{campus-to-institution} edge is naturally reversed by an
+\texttt{institution-to-campus} edge.
+
+For a relation $r$, define the reversed edge set
+\begin{align}
+    E_r^{\mathrm{rev}}
+    =
+    \{(t,h)\mid (h,t)\in E_r\}.
+\end{align}
+For an ordered relation pair $(r_1,r_2)$, the directional inverse score is
+\begin{align}
+    s(r_1\rightarrow r_2)
+    =
+    \frac{|E_{r_1}\cap E_{r_2}^{\mathrm{rev}}|}{|E_{r_1}|}.
+\end{align}
+This score measures the proportion of $r_1$ edges that are supported by
+reversed $r_2$ edges.
+It is directional, so $s(r_1\rightarrow r_2)$ and
+$s(r_2\rightarrow r_1)$ need not be equal.
+
+The directional score is useful as a baseline, but it can also be high for
+one-sided containment.
+Therefore, the main inverse analysis also uses a stricter mutual score.
+Let
+\begin{align}
+    s_{12} = s(r_1\rightarrow r_2),
+    \qquad
+    s_{21} = s(r_2\rightarrow r_1).
+\end{align}
+The pair-level mutual inverse score is
+\begin{align}
+    s_{\mathrm{mut}}(r_1,r_2)
+    =
+    \begin{cases}
+        \dfrac{2s_{12}s_{21}}{s_{12}+s_{21}},
+        & \text{if } s_{12}+s_{21}>0,\\
+        0, & \text{otherwise.}
+    \end{cases}
+\end{align}
+This harmonic-mean form assigns a high value only when both directions have
+substantial reverse support.
+
+To keep the analysis relation-level, the pair-level score is summarized for
+each relation $r$ by its strongest mutual inverse partner:
+\begin{align}
+    \operatorname{MutInvStrength}(r)
+    =
+    \max_{r'\in\mathcal{R},\,r'\neq r}
+    s_{\mathrm{mut}}(r,r').
+\end{align}
+The corresponding best partner is the relation that attains this maximum.
+The analysis also uses inverse clarity:
+\begin{align}
+    \operatorname{InvClarity}(r)
+    =
+    \max\left(
+        0,\,
+        \operatorname{MutInvStrength}(r)
+        -
+        \operatorname{SecondBestMutInvStrength}(r)
+    \right).
+\end{align}
+This value measures whether the best mutual inverse partner is clearly separated
+from the second-best candidate.
+In the result files, these two relation-level variables are recorded as
+\texttt{mutual\_inverse\_strength} and \texttt{inverse\_clarity}.
 
 \subsubsection{Symmetry}
 
-TODO: Define symmetry and explain the self-loop caveat.
+\emph{Symmetry} is a single-relation property.
+For a relation $r$, define the symmetric-supported edge set as
+\begin{align}
+    E_r^{\mathrm{sym}}
+    =
+    \{(h,t)\in E_r\mid (t,h)\in E_r\}.
+\end{align}
+The raw symmetry score is
+\begin{align}
+    \operatorname{Sym}(r)
+    =
+    \frac{|E_r^{\mathrm{sym}}|}{|E_r|}.
+\end{align}
+It measures the proportion of training edges for relation $r$ that have a
+reverse edge under the same relation.
+For example, a sibling relation can have high symmetry because
+``Emma Thompson sibling Sophie Thompson'' and
+``Sophie Thompson sibling Emma Thompson'' may both appear in the training graph.
 
-\subsubsection{Relation Frequency}
+Raw symmetry can be inflated by self-loops.
+For a self-loop $(h,r,h)$, the reversed edge is the same edge, so it is counted
+as symmetric even when the relation does not otherwise show strong bidirectional
+behavior.
+To avoid this effect, the main symmetry variable excludes self-loops.
+Define
+\begin{align}
+    E_r^{\neg\mathrm{loop}}
+    &=
+    \{(h,t)\in E_r\mid h\neq t\},
+    \\
+    E_r^{\mathrm{sym},\neg\mathrm{loop}}
+    &=
+    \{(h,t)\in E_r\mid h\neq t,\ (t,h)\in E_r\}.
+\end{align}
+The excluding-self-loop symmetry score is
+\begin{align}
+    \operatorname{Sym}^{\neg\mathrm{loop}}(r)
+    =
+    \frac{|E_r^{\mathrm{sym},\neg\mathrm{loop}}|}
+    {|E_r^{\neg\mathrm{loop}}|}.
+\end{align}
+When $|E_r^{\neg\mathrm{loop}}|=0$, the score is set to $0$ in the
+implementation.
+This thesis uses $\operatorname{Sym}^{\neg\mathrm{loop}}(r)$ as the main
+symmetry factor.
+The raw score is retained only as a diagnostic value for self-loop sensitivity.
 
-TODO: Keep relation frequency as a pending support/sparsity control analysis until its role is confirmed.
+Low symmetry is not treated as antisymmetry in this thesis.
+$1-\operatorname{Sym}^{\neg\mathrm{loop}}(r)$ only measures a lack of observed
+same-relation reverse support.
+Strict antisymmetry is a stronger mathematical property and is not introduced as
+a separate factor in the present analysis.
