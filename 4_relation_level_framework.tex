@@ -254,19 +254,32 @@ This gives four mapping types:
     $d_{\mathrm{tail}}(r)>1.5$; both sides are many.
 \end{itemize}
 
-These labels are operational categories rather than exact semantic laws.
-For example, in FB15k-237, \texttt{/location/us\_county/county\_seat} is a
-$1$-$1$ relation under this rule, while
-\texttt{/location/country/second\_level\_divisions} is $1$-$N$ because one
-country can be connected to many second-level divisions.
-Similarly, \texttt{/people/person/gender} is $M$-$1$, and
-\texttt{/olympics/olympic\_games/sports} is $M$-$N$.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.78\textwidth]{figures/chap4/sum.pdf}
+    \caption{Illustration of the four mapping types.
+    Left nodes represent head-side entities and right nodes represent
+    tail-side entities. The relation name shown in each part gives the
+    example relation, and each edge indicates that the two entities are
+    connected by that relation. The categories are determined by the average
+    head-side and tail-side connectivity in the training graph.}
+    \label{fig:mapping-type-schematic}
+\end{figure}
 
-Mapping type must be interpreted together with prediction side.
-In a $1$-$N$ relation, tail prediction asks the model to select one entity from
-a structurally many-valued side, while head prediction is closer to selecting
-the single-side entity.
-The reverse holds for $M$-$1$ relations.
+Figure~\ref{fig:mapping-type-schematic} illustrates the four categories.
+In the upper-left panel, the relation \texttt{paper\_has\_DOI} connects each
+\texttt{paper} entity to one \texttt{DOI} entity, and no \texttt{DOI} entity is
+shared by multiple \texttt{paper} entities.Therefore, this panel therefore 
+illustrates a $1$-$1$ type.
+The other panels follow the same convention for $1$-$N$, $M$-$1$, and $M$-$N$
+relations.
+
+Mapping type must also be interpreted together with prediction side.
+For example, in a $1$-$N$ relation, tail prediction asks the model to rank 
+candidates on the many-valued tail side, while head prediction is on the side 
+that is not classified as many.
+The reverse stands for $M$-$1$ relations: head prediction is on the many-valued
+head side, while tail prediction is on the side that is not classified as many.
 For this reason, the mapping-type analysis in Chapter~\ref{chap:experiments}
 uses side-aware relation-level aggregation rather than only the combined
 head-and-tail view.
