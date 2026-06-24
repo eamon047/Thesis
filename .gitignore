@@ -21,6 +21,7 @@ main.pdf
 .DS_Store
 .vscode/
 AGENTS.md
+quick_commit.sh
 
 # Local backups
 backup.zip
