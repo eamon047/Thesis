@@ -287,8 +287,7 @@ head-and-tail view.
 \subsubsection{Inverse}
 
 In this thesis, \emph{inverse} refers to operational inverse support computed
-from reversed edge overlap in the training graph, rather than manually verified
-semantic inverse relations.
+from reversed edge overlap in the training graph.
 For two relations $r_1$ and $r_2$, if triples of the form $(h,r_1,t)$ are often
 accompanied by triples of the form $(t,r_2,h)$, then $r_2$ provides inverse
 support for $r_1$.
@@ -378,14 +377,13 @@ The raw symmetry score is
 \end{align}
 It measures the proportion of training edges for relation $r$ that have a
 reverse edge under the same relation.
-For example, a sibling relation can have high symmetry because
+For example, a \text{sibling} relation can have high symmetry because
 ``Emma Thompson sibling Sophie Thompson'' and
 ``Sophie Thompson sibling Emma Thompson'' may both appear in the training graph.
 
 Raw symmetry can be inflated by self-loops.
 For a self-loop $(h,r,h)$, the reversed edge is the same edge, so it is counted
-as symmetric even when the relation does not otherwise show strong bidirectional
-behavior.
+as symmetric even when the relation does not show strong bidirectional behavior.
 To avoid this effect, the main symmetry variable excludes self-loops.
 Define
 \begin{align}
