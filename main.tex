@@ -169,9 +169,9 @@ Predictive multiplicity addresses this issue by measuring disagreement among com
 This thesis further asks whether such instability is uniformly distributed or systematically associated with relation-level graph structure.
 
 Using FB15k-237 and repeated runs of RotatE and TransE, this thesis analyzes relation-level Hits@10, ambiguity, and discrepancy under several structural factors.
-The main finding is that predictive multiplicity is strongly side-dependent under relation mapping type: structurally harder prediction directions tend to have lower Hits@10 and higher ambiguity and discrepancy.
-Inverse-like support is studied as an exploratory secondary factor, while symmetry is treated as a plausible but weakly supported candidate factor.
-The final abstract will be revised after the main experimental chapters are finalized.
+The clearest result is a strong association between relation mapping type and predictive multiplicity.
+The association with inverse relations is non-monotonic, with lower predictive multiplicity concentrated among relations with high inverse scores.
+By contrast, symmetry, although commonly examined as a relation pattern in knowledge graph embedding, shows no clear association with predictive multiplicity after self-loop cases are excluded.
 \end{eabstract}
 
 \tableofcontents			% 目次の出力
@@ -185,7 +185,7 @@ The final abstract will be revised after the main experimental chapters are fina
 \input{7_conclusion.tex}
 
 \section*{Acknowledgement}
-TODO: Write the acknowledgement after the thesis body is stable.
+% TODO：等论文主体基本稳定以后再写致谢。
 
 \Appendix
 \input{appendix.tex}
