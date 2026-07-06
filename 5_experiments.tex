@@ -11,46 +11,53 @@ and 20,466 triples, respectively. We consider two KGE model families, RotatE
 and TransE. They provide two different model settings for checking whether the
 observed relation-level patterns are specific to one embedding model.
 
-For each model family, one trained model is first used as the reference model.
-Additional models are then trained with the same model configuration and
-different random seeds. Let \(H_0\) be the filtered Hits@10 of the reference
-model and \(H_i\) the filtered Hits@10 of a candidate model. A candidate is
-included in the comparable model set when
+For each model family, we use the training configuration selected through the
+hyperparameter optimization in the original study
+\citep{zhu2024predictive}. One run trained with this configuration is fixed as
+the reference model, and additional models are trained with the same
+configuration and different random seeds. Let \(H_0\) be the filtered Hits@10
+of the reference model and \(H_i\) the filtered Hits@10 of a candidate model. A
+candidate is included in the comparable model set when
 \begin{align}
     |H_i-H_0| < \epsilon,
-    \qquad \epsilon=0.01.
+    \qquad \epsilon=0.001.
 \end{align}
 This process is repeated until the model outputs required for the multiplicity
 analysis have been collected. Figure~\ref{fig:experimental-workflow} summarizes
 this procedure. The performance condition keeps the comparison focused on
 models with similar aggregate link-prediction performance, while the different
-random seeds allow their query-level decisions to vary.
+random seeds allow their query-level decisions to vary. The reference run is
+fixed before the relation-level analysis and provides an anchor for defining
+this performance neighborhood. The aim is to compare query-level decisions
+within that neighborhood, rather than to estimate the best attainable
+performance of either model family.
 
 \begin{figure}[t]
     \centering
     \setlength{\fboxsep}{7pt}
-    \begin{tabular}{c}
-        \fbox{\parbox{0.72\textwidth}{\centering
-        Train a reference model and record its filtered Hits@10, \(H_0\)}}\\[4pt]
+        \begin{tabular}{c}
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Use the optimized configuration from the original study\\
+        Train and fix a reference run; record \(H_0\)}}\\[4pt]
         \(\Downarrow\)\\[-1pt]
-        \fbox{\parbox{0.72\textwidth}{\centering
-        Train a candidate from the same model family and configuration\\
-        using a different random seed}}\\[4pt]
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Fix the selected training configuration\\
+        Train a candidate using a different random seed}}\\[4pt]
         \(\Downarrow\)\\[-1pt]
-        \fbox{\parbox{0.72\textwidth}{\centering
-        Compare aggregate performance:
-        \(\lvert H_i-H_0\rvert < \epsilon\), where \(\epsilon=0.01\)\\
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Compare aggregate performance using\\
+        \(\lvert H_i-H_0\rvert < \epsilon\), with \(\epsilon=0.001\)\\
         Retain the candidate if the condition is satisfied; otherwise train
         another candidate}}\\[4pt]
         \(\Downarrow\)\\[-1pt]
-        \fbox{\parbox{0.72\textwidth}{\centering
+        \fbox{\parbox{0.7\textwidth}{\centering
         Repeat until the comparable model set is formed}}\\[4pt]
         \(\Downarrow\)\\[-1pt]
-        \fbox{\parbox{0.72\textwidth}{\centering
+        \fbox{\parbox{0.7\textwidth}{\centering
         Compute filtered top-10 decisions and relation-level
-        Hits@10, ambiguity, and discrepancy}}\\[4pt]
+        Hits@10, ambiguity(\(\alpha\)), and discrepancy(\(\delta\))}}\\[4pt]
         \(\Downarrow\)\\[-1pt]
-        \fbox{\parbox{0.72\textwidth}{\centering
+        \fbox{\parbox{0.7\textwidth}{\centering
         Analyze multiplicity by relation structure and prediction side}}
     \end{tabular}
     \caption{Experimental workflow for constructing a comparable model set and
@@ -61,8 +68,8 @@ random seeds allow their query-level decisions to vary.
 All link-prediction outputs are evaluated under the filtered setting with
 \(k=10\). The analysis uses the raw outputs before voting aggregation, denoted
 by the \texttt{without} condition in the experiment files. For each relation,
-we report the relation-level Hits@10, ambiguity, and discrepancy defined in
-Chapter~\ref{chap:framework}. The main figures and grouped comparisons retain
+we report the relation-level Hits@10, ambiguity(\(\alpha\)), and discrepancy(\(\delta\))
+defined in Chapter~\ref{chap:framework}. The main figures and grouped comparisons retain
 relations with at least ten test triples
 (\(\texttt{test\_support}\geq 10\)); relations below this threshold are not
 used in the displayed comparisons.
