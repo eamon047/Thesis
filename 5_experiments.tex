@@ -100,81 +100,115 @@ structure on the head-prediction side \((?,r,t)\). Conversely, for an
 merging head and tail queries mixes the side where the mapping structure creates
 more candidate ambiguity with the opposite side of the same relation.
 
-For this reason, a combined relation-level metric can obscure the pattern that
-the mapping type is meant to capture. The main analysis separates head-side and
-tail-side prediction so that each metric is compared with the corresponding
-side of the relation structure. The combined relation-level view is kept as
-appendix-level diagnostic material, and the side-aware results are used as the
-main evidence in this section.
+If the two sides are combined, the result may look weaker because the difficult
+side and the opposite side are averaged together. For this reason, the following
+analysis reports tail prediction and head prediction separately. The combined
+view is left to the appendix as a supporting check.
 % TODO: Add the combined relation-level mapping-type figure to the appendix as
 % a diagnostic result, rather than using it as main evidence in Section 5.2.
 
 \subsubsection{RotatE Results}
 
-Figures~\ref{fig:mapping-rotate-tail} and~\ref{fig:mapping-rotate-head} show
-the RotatE results after separating tail prediction and head prediction. Each
-figure groups relations by mapping type and reports relation-level Hits@10,
-ambiguity \(\alpha\), and discrepancy \(\delta\). Hits@10 gives the
-relation-level predictive performance, while \(\alpha\) and \(\delta\) are the
-two multiplicity measures used in this chapter.
+The RotatE results are reported separately for tail prediction and head
+prediction. Each figure groups relations by mapping type and reports
+relation-level Hits@10, ambiguity \(\alpha\), and discrepancy \(\delta\).
+Hits@10 gives the relation-level predictive performance, while \(\alpha\) and
+\(\delta\) are the two multiplicity measures used in this chapter.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/mapping_type_RotatE_tail.pdf}
     \caption{RotatE mapping-type results for tail prediction under
-    \(\texttt{test\_support}\geq 10\).}
+    \(\texttt{test\_support}\geq 10\). The red line marks the
+    mean over all retained relations.}
     \label{fig:mapping-rotate-tail}
 \end{figure}
+
+The result of tail prediction for RotatE are shown in Figure~\ref{fig:mapping-rotate-tail},
+and it tells the clearest contrast among the four mapping types.
+The \(1\)-\(N\) group has the lowest Hits@10 and the highest
+\(\alpha\) and \(\delta\). Its tail predictions are therefore less accurate and
+show more hit-or-miss disagreement across the repeated RotatE runs. The
+\(M\)-\(1\) group is at the other end of the comparison: it has the highest
+Hits@10 and the lowest \(\alpha\) and \(\delta\). Thus, for RotatE tail
+prediction, the \(1\)-\(N\) and \(M\)-\(1\) groups show a clear difference in
+both predictive performance and multiplicity.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/mapping_type_RotatE_head.pdf}
     \caption{RotatE mapping-type results for head prediction under
-    \(\texttt{test\_support}\geq 10\).}
+    \(\texttt{test\_support}\geq 10\). The red line marks the
+    mean over all retained relations.}
     \label{fig:mapping-rotate-head}
 \end{figure}
 
-In tail prediction, the \(1\)-\(N\) group has lower Hits@10 and higher
-\(\alpha\) and \(\delta\) than the \(M\)-\(1\) group. This matches the
-direction of the mapping type: in a \(1\)-\(N\) relation, the tail side is the
-many side. The lower Hits@10 indicates that this side is harder to predict,
-and the higher \(\alpha\) and \(\delta\) indicate that comparable RotatE runs
-also disagree more often on this side.
-
-In head prediction, the pattern changes direction. The \(M\)-\(1\) group now
-has lower Hits@10 and higher multiplicity measures than the \(1\)-\(N\) group.
-This is consistent with the fact that the head side is the many side for
-\(M\)-\(1\) relations. Thus, for RotatE, the mapping-type pattern is not a
-single global ordering of relation types. It depends on which side of the
-relation is being predicted.
+The comparison reverses in Figure~\ref{fig:mapping-rotate-head}. For head
+prediction, the \(M\)-\(1\) group has the lowest Hits@10 and the highest
+\(\alpha\) and \(\delta\), while the \(1\)-\(N\) group has the highest Hits@10
+and the lowest multiplicity measures. The relation group with lower accuracy
+and higher multiplicity therefore changes when the prediction side changes.
 
 \subsubsection{TransE Results}
 
-Figures~\ref{fig:mapping-transe-tail} and~\ref{fig:mapping-transe-head} report
-the same side-aware comparison for TransE. The purpose of this comparison is to
-check whether the directional pattern observed for RotatE also appears under a
-different KGE model family.
+The same side-aware comparison is also applied to TransE. The purpose of this
+comparison is to check whether the directional pattern observed for RotatE also
+appears under a different KGE model family.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/mapping_type_TransE_tail.pdf}
     \caption{TransE mapping-type results for tail prediction under
-    \(\texttt{test\_support}\geq 10\).}
+    \(\texttt{test\_support}\geq 10\). The red line marks the
+    mean over all retained relations.}
     \label{fig:mapping-transe-tail}
 \end{figure}
+
+Although TransE is a different model family, its tail-prediction result shows
+the same contrast between \(1\)-\(N\) and \(M\)-\(1\). In
+Figure~\ref{fig:mapping-transe-tail}, the \(1\)-\(N\) group again has the
+lowest Hits@10 and the highest \(\alpha\) and \(\delta\), whereas the
+\(M\)-\(1\) group has the highest Hits@10 and the lowest multiplicity measures.
+The lower accuracy and higher instability of the \(1\)-\(N\) tail side are
+therefore observed in both models.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/mapping_type_TransE_head.pdf}
     \caption{TransE mapping-type results for head prediction under
-    \(\texttt{test\_support}\geq 10\).}
+    \(\texttt{test\_support}\geq 10\). The red line marks the
+    mean over all retained relations.}
     \label{fig:mapping-transe-head}
 \end{figure}
 
-The TransE results follow the same side-aware ordering. In tail prediction,
-\(1\)-\(N\) relations have lower Hits@10 and higher \(\alpha\) and \(\delta\)
-than \(M\)-\(1\) relations. In head prediction, \(M\)-\(1\) relations have lower
-Hits@10 and higher multiplicity measures than \(1\)-\(N\) relations.
+Figure~\ref{fig:mapping-transe-head} completes the same reversal for head
+prediction. The \(M\)-\(1\) group has the lowest Hits@10 and the highest
+\(\alpha\) and \(\delta\). Compared with this group, the \(1\)-\(N\) group has
+much higher Hits@10 and lower multiplicity measures. This agrees with the
+RotatE head-prediction result.
+
+A possible explanation is the set of constraints created by the training
+triples. For a \(1\)-\(N\) relation, one fixed \((h,r)\) pair is connected to
+several tail entities. Different training runs can represent or rank these
+targets differently while retaining similar overall performance. This may lead
+to higher \(\alpha\) and \(\delta\).
+
+For an \(M\)-\(1\) relation, the constraints on tail prediction have a
+different form. Triples such as \((h_1,r,t)\), \((h_2,r,t)\), and
+\((h_3,r,t)\) provide several training constraints involving the same tail
+entity, but each constraint belongs to a different tail query. The many-valued
+structure is therefore on the head side rather than on the predicted tail side.
+The same reasoning applies in reverse to head prediction, where a fixed
+\((r,t)\) pair in an \(M\)-\(1\) relation is connected to multiple possible
+head entities.
+
+Under filtered evaluation, other known true answers are removed before the
+candidate ranking is evaluated. The observed difference is therefore not
+simply caused by known answers competing directly in the candidate list. The
+four figures instead suggest that the constraints learned from the many side of
+a relation leave more room for repeated runs to produce different ranking
+decisions. This interpretation is consistent with the observed results, but
+the current experiment does not test this training mechanism separately.
 
 Tables~\ref{tab:mapping-type-tail-summary}
 and~\ref{tab:mapping-type-head-summary} list the corresponding grouped means
@@ -226,13 +260,14 @@ in the figures.
     \end{tabular}
 \end{table}
 
-The agreement between RotatE and TransE suggests that this pattern is not only
-a peculiarity of one embedding model. At the same time, the claim remains
-limited to the current setting: FB15k-237, the repeated-run protocol described
-above, relation-level aggregation, and the \(\texttt{test\_support}\geq 10\)
-display threshold. Mapping type is therefore treated as the strongest observed
-structural factor in this chapter, but not as a complete explanation of
-predictive multiplicity.
+RotatE and TransE show the same side-dependent contrast on FB15k-237:
+\(1\)-\(N\) relations have lower accuracy and higher multiplicity in tail
+prediction, while \(M\)-\(1\) relations show this pattern in head prediction.
+This comparison is limited to the repeated-run protocol, relation-level
+aggregation, and the \(\texttt{test\_support}\geq 10\) display threshold used
+in this thesis. The result supports mapping type as the strongest observed
+structural factor in this chapter, but it does not show that mapping type fully
+explains predictive multiplicity.
 
 \subsection{Inverse-Like Support Analysis}
 \label{sec:inverse_analysis}
