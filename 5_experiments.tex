@@ -219,17 +219,153 @@ mapping type and predictive multiplicity depends on which side is predicted.
 The exact grouped means for all four mapping types are reported in
 Appendix~\ref{app:mapping-type-tables}.
 
-\subsection{Inverse-Like Support Analysis}
+\subsection{Inverse Relation Analysis}
 \label{sec:inverse_analysis}
 
-% TODO：这一节按探索性副结果来写，不要写成主结论。
-The intended conclusion is that inverse-like support is not a global monotonic explanation, but stricter high-confidence inverse-like metrics identify a small stable subgroup.
+\subsubsection{Motivation}
+
+When two relations form an inverse pair, they describe the connection between
+the same entities in opposite directions. Training edges under the two
+relations can therefore provide paired structural evidence: one relation
+supports the connection from the head to the tail, while its inverse partner
+supports the reversed connection. Such evidence may constrain the relation
+representations learned under different random seeds and make their ranking
+decisions more stable.
+
+The analysis uses the inverse clarity defined in
+Chapter~\ref{chap:framework}. This score measures whether the strongest mutual
+inverse partner of a relation is clearly separated from its second-best
+partner. A high value therefore indicates both substantial reverse support and
+a clearly identified inverse partner. For readability, the figures in this
+section use \emph{inverse score} as a shorter name for inverse clarity.
+
+\subsubsection{Results}
+
+Figure~\ref{fig:inverse-spearman} reports the global Spearman correlations
+between the inverse score and the three relation-level evaluation metrics. If
+increasing inverse scores provided a general stability benefit, the score would
+be expected to have a positive association with Hits@10 and negative
+associations with \(\alpha\) and \(\delta\). The observed correlations do not
+show this pattern. For RotatE and TransE, the correlations with Hits@10 are
+\(-0.2796\) and \(-0.2819\), respectively. The correlations with \(\alpha\)
+and \(\delta\) are positive and range from \(0.2263\) to \(0.2427\). Thus, the
+global results do not support a monotonic improvement in accuracy or stability
+as the inverse score increases.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.86\textwidth]{figures/chap5/inverse/spearman.pdf}
+    \caption{Spearman correlations between inverse clarity and relation-level
+    Hits@10, \(\alpha\), and \(\delta\) under
+    \(\texttt{test\_support}\geq 10\).}
+    \label{fig:inverse-spearman}
+\end{figure}
+
+The score-group comparison in Figure~\ref{fig:inverse-score-groups} shows that
+the highest score range behaves differently from the global trend. Among the
+182 retained relations, 78 have an inverse score of zero, 99 have a score in
+the interval \((0,0.5]\), and five have a score above \(0.5\). The middle
+range has lower Hits@10 and higher multiplicity than the zero-score range in
+both models. However, the five relations with scores above \(0.5\) show a
+markedly different result. For RotatE, their mean Hits@10 reaches \(0.8000\),
+while both \(\alpha\) and \(\delta\) are \(0\). For TransE, their mean Hits@10
+is \(0.6866\), while \(\alpha\) and \(\delta\) decrease to \(0.1361\) and
+\(0.0813\), respectively. This is the highest Hits@10 and the lowest
+multiplicity among the three score ranges for both models.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.86\textwidth]{figures/chap5/inverse/score-groups.pdf}
+    \caption{Relation-level results grouped by inverse clarity under
+    \(\texttt{test\_support}\geq 10\). The label \emph{Score} in the table
+    refers to the inverse clarity defined in Chapter~\ref{chap:framework}.}
+    \label{fig:inverse-score-groups}
+\end{figure}
+
+One possible interpretation is that partial or ambiguous reverse support is
+not sufficient to provide a consistent paired constraint. When the inverse
+score is high, the reverse evidence is concentrated on a strong and clearly
+separated partner, which may reduce variation across repeated runs. This
+interpretation is consistent with the sharp change in the highest score range,
+but the current experiment does not test the underlying training mechanism.
+Moreover, this range contains only five relations. The result therefore does
+not establish that inverse scores provide a continuous benefit or that the same
+cutoff will apply in other datasets. It shows that, in the current experiment,
+the clearest positive inverse result is concentrated among relations with very
+high inverse scores.
 
 \subsection{Symmetry Analysis}
 \label{sec:symmetry_analysis}
 
-% TODO：这一节按弱结果或负结果来写。
-The intended conclusion is that symmetry is plausible but does not provide a clean standalone explanation after accounting for self-loop sensitivity.
+\subsubsection{Motivation}
+
+For a symmetric relation, an entity pair can be connected by the same relation
+in both directions. The two endpoint entities can therefore occupy compatible
+roles under that relation, and the training graph provides structural evidence
+for both directional orderings. This may reduce the distinction between the
+head and tail roles and make predictions less sensitive to differences between
+repeated runs.
+
+As discussed in Chapter~\ref{chap:framework}, the raw symmetry score can be
+inflated by self-loop triples because a self-loop is identical to its reversed
+edge. The following analysis therefore uses the symmetry score that excludes
+self-loops, \(\operatorname{Sym}^{\neg\mathrm{loop}}(r)\). The shorter label
+\emph{Score} in the figures refers to this excluding-self-loop score.
+
+\subsubsection{Results}
+
+The global correlations in Figure~\ref{fig:symmetry-spearman} are weak. The
+Spearman correlations with Hits@10 are \(0.0122\) for RotatE and \(0.0117\)
+for TransE. The correlations with \(\alpha\) and \(\delta\) range from
+\(0.0425\) to \(0.1310\). These results do not support a clear monotonic
+association between the excluding-self-loop symmetry score and either
+predictive performance or multiplicity.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.86\textwidth]{figures/chap5/symmetry/spearman.pdf}
+    \caption{Spearman correlations between the excluding-self-loop symmetry
+    score and relation-level Hits@10, \(\alpha\), and \(\delta\) under
+    \(\texttt{test\_support}\geq 10\).}
+    \label{fig:symmetry-spearman}
+\end{figure}
+
+Figure~\ref{fig:symmetry-score-groups} divides the 182 retained relations into
+164 zero-score relations, six relations with scores in \((0,0.5]\), and 12
+relations with scores above \(0.5\). Hits@10 shows the same non-monotonic
+ordering for both models. The middle range has the lowest Hits@10, while the
+high-score range recovers to a value slightly above the zero-score range. For
+RotatE, the three means are \(0.5815\), \(0.5047\), and \(0.5924\). For
+TransE, they are \(0.5605\), \(0.4725\), and \(0.5742\).
+
+The multiplicity measures do not show the same cross-model pattern. For
+TransE, \(\alpha\) decreases from \(0.4436\) in the middle range to \(0.3512\)
+in the high-score range, and \(\delta\) decreases from \(0.2736\) to
+\(0.2119\). Both values nevertheless remain above those of the zero-score
+range. For RotatE, the high-score range does not show a corresponding
+reduction: \(\alpha\) changes from \(0.3610\) to \(0.3735\), and \(\delta\)
+changes from \(0.2236\) to \(0.2341\). Thus, the recovery in Hits@10 at high
+symmetry scores does not translate into a consistent reduction in predictive
+multiplicity.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.86\textwidth]{figures/chap5/symmetry/score-groups.pdf}
+    \caption{Relation-level results grouped by the excluding-self-loop
+    symmetry score under \(\texttt{test\_support}\geq 10\).}
+    \label{fig:symmetry-score-groups}
+\end{figure}
+
+Symmetry may provide coarse evidence that the two endpoints occupy compatible
+roles, but it does not identify which particular entity should be ranked as the
+correct answer. This distinction may explain why high symmetry is not
+sufficient to produce a consistent stability benefit. However, it does not
+explain why the six relations in the middle range have the lowest Hits@10. The
+small size of this range also makes it difficult to interpret its mean as a
+general penalty associated with weak symmetry. Therefore, the grouped results
+should not be treated as evidence for a general U-shaped relationship.
+Overall, under the current operationalization, symmetry does not provide a
+clean standalone explanation of relation-level predictive multiplicity.
 
 \subsection{Relation Frequency Control}
 \label{sec:relation_frequency_control}
