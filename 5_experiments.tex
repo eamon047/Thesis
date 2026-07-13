@@ -77,10 +77,9 @@ used in the displayed comparisons.
 Mapping type is the first relation-level structural factor considered in this
 chapter. As defined in Chapter~\ref{chap:framework}, it categorizes a relation
 according to whether its head side and tail side behave as one or many in the
-training graph. This factor is closely tied to the number of plausible entities
-that may answer a prediction query. For this reason, it provides a direct way
-to examine whether relation-level predictive multiplicity is connected to
-graph structure.
+training graph. Because mapping type distinguishes whether the predicted side
+is one- or many-valued in the training graph, it provides a relation-level
+factor for comparing predictive multiplicity.
 
 \subsubsection{Motivation for Side-Aware Analysis}
 
@@ -124,15 +123,16 @@ Hits@10 gives the relation-level predictive performance, while \(\alpha\) and
     \label{fig:mapping-rotate-tail}
 \end{figure}
 
-The result of tail prediction for RotatE are shown in Figure~\ref{fig:mapping-rotate-tail},
-and it tells the clearest contrast among the four mapping types.
+The RotatE tail-prediction results are shown in
+Figure~\ref{fig:mapping-rotate-tail}, which presents the clearest contrast
+among the four mapping types.
 The \(1\)-\(N\) group has the lowest Hits@10 and the highest
 \(\alpha\) and \(\delta\). Its tail predictions are therefore less accurate and
 show more hit-or-miss disagreement across the repeated RotatE runs. The
 \(M\)-\(1\) group is at the other end of the comparison: it has the highest
-Hits@10 and the lowest \(\alpha\) and \(\delta\). Thus, for RotatE tail
-prediction, the \(1\)-\(N\) and \(M\)-\(1\) groups show a clear difference in
-both predictive performance and multiplicity.
+Hits@10 and the lowest \(\alpha\) and \(\delta\). Taken together, these results
+suggest that predictive multiplicity varies across mapping types in RotatE tail
+prediction.
 
 \begin{figure}[H]
     \centering
@@ -143,8 +143,8 @@ both predictive performance and multiplicity.
     \label{fig:mapping-rotate-head}
 \end{figure}
 
-The comparison reverses in Figure~\ref{fig:mapping-rotate-head}. For head
-prediction, the \(M\)-\(1\) group has the lowest Hits@10 and the highest
+Figure~\ref{fig:mapping-rotate-head} shows a different pattern for head
+prediction. The \(M\)-\(1\) group now has the lowest Hits@10 and the highest
 \(\alpha\) and \(\delta\), while the \(1\)-\(N\) group has the highest Hits@10
 and the lowest multiplicity measures. The relation group with lower accuracy
 and higher multiplicity therefore changes when the prediction side changes.
@@ -205,69 +205,19 @@ head entities.
 Under filtered evaluation, other known true answers are removed before the
 candidate ranking is evaluated. The observed difference is therefore not
 simply caused by known answers competing directly in the candidate list. The
-four figures instead suggest that the constraints learned from the many side of
+four figures suggest that the constraints learned from the many side of
 a relation leave more room for repeated runs to produce different ranking
 decisions. This interpretation is consistent with the observed results, but
 the current experiment does not test this training mechanism separately.
 
-Tables~\ref{tab:mapping-type-tail-summary}
-and~\ref{tab:mapping-type-head-summary} list the corresponding grouped means
-for all four mapping types. The tables are included as numerical summaries of
-the plotted results; the main comparison remains the side-aware pattern shown
-in the figures.
+Overall, RotatE and TransE show the same side-dependent pattern on FB15k-237.
+For \(1\)-\(N\) and \(M\)-\(1\) relations, predicting the side classified as
+many is associated with lower accuracy and higher predictive multiplicity than
+predicting the opposite side. This result suggests that the relation between
+mapping type and predictive multiplicity depends on which side is predicted.
 
-\begin{table}[H]
-    \centering
-    \caption{Relation-level means for tail prediction under
-    \(\texttt{test\_support}\geq 10\).}
-    \label{tab:mapping-type-tail-summary}
-    \small
-    \begin{tabular}{llrrr}
-        \toprule
-        Model & Mapping type & Hits@10 & \(\alpha\) & \(\delta\) \\
-        \midrule
-        RotatE & \(1\)-\(1\) & 0.6771 & 0.2422 & 0.1529 \\
-        RotatE & \(1\)-\(N\) & 0.2104 & 0.5234 & 0.3659 \\
-        RotatE & \(M\)-\(1\) & 0.8251 & 0.1076 & 0.0731 \\
-        RotatE & \(M\)-\(N\) & 0.6313 & 0.2646 & 0.1591 \\
-        TransE & \(1\)-\(1\) & 0.7016 & 0.2790 & 0.2218 \\
-        TransE & \(1\)-\(N\) & 0.1741 & 0.7147 & 0.4596 \\
-        TransE & \(M\)-\(1\) & 0.8180 & 0.1809 & 0.1117 \\
-        TransE & \(M\)-\(N\) & 0.6065 & 0.3877 & 0.2200 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \caption{Relation-level means for head prediction under
-    \(\texttt{test\_support}\geq 10\).}
-    \label{tab:mapping-type-head-summary}
-    \small
-    \begin{tabular}{llrrr}
-        \toprule
-        Model & Mapping type & Hits@10 & \(\alpha\) & \(\delta\) \\
-        \midrule
-        RotatE & \(1\)-\(1\) & 0.6664 & 0.3216 & 0.2145 \\
-        RotatE & \(1\)-\(N\) & 0.7527 & 0.1939 & 0.1168 \\
-        RotatE & \(M\)-\(1\) & 0.2836 & 0.5855 & 0.3835 \\
-        RotatE & \(M\)-\(N\) & 0.5971 & 0.3366 & 0.1994 \\
-        TransE & \(1\)-\(1\) & 0.6861 & 0.3015 & 0.1332 \\
-        TransE & \(1\)-\(N\) & 0.7455 & 0.2261 & 0.1339 \\
-        TransE & \(M\)-\(1\) & 0.2439 & 0.7523 & 0.4893 \\
-        TransE & \(M\)-\(N\) & 0.5764 & 0.4355 & 0.2474 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-RotatE and TransE show the same side-dependent contrast on FB15k-237:
-\(1\)-\(N\) relations have lower accuracy and higher multiplicity in tail
-prediction, while \(M\)-\(1\) relations show this pattern in head prediction.
-This comparison is limited to the repeated-run protocol, relation-level
-aggregation, and the \(\texttt{test\_support}\geq 10\) display threshold used
-in this thesis. The result supports mapping type as the strongest observed
-structural factor in this chapter, but it does not show that mapping type fully
-explains predictive multiplicity.
+The exact grouped means for all four mapping types are reported in
+Appendix~\ref{app:mapping-type-tables}.
 
 \subsection{Inverse-Like Support Analysis}
 \label{sec:inverse_analysis}
