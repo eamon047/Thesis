@@ -237,20 +237,19 @@ Chapter~\ref{chap:framework}. This score measures whether the strongest mutual
 inverse partner of a relation is clearly separated from its second-best
 partner. A high value therefore indicates both substantial reverse support and
 a clearly identified inverse partner. For readability, the figures in this
-section use \emph{inverse score} as a shorter name for inverse clarity.
+section use \emph{score} as a shorter name for inverse clarity.
 
 \subsubsection{Results}
 
 Figure~\ref{fig:inverse-spearman} reports the global Spearman correlations
-between the inverse score and the three relation-level evaluation metrics. If
-increasing inverse scores provided a general stability benefit, the score would
-be expected to have a positive association with Hits@10 and negative
-associations with \(\alpha\) and \(\delta\). The observed correlations do not
-show this pattern. For RotatE and TransE, the correlations with Hits@10 are
-\(-0.2796\) and \(-0.2819\), respectively. The correlations with \(\alpha\)
-and \(\delta\) are positive and range from \(0.2263\) to \(0.2427\). Thus, the
-global results do not support a monotonic improvement in accuracy or stability
-as the inverse score increases.
+between the inverse score and the three relation-level evaluation metrics.
+Across all relations, the inverse score does not show a monotonic association
+with improved accuracy or stability. For RotatE and TransE, the Spearman
+correlations with Hits@10 are \(-0.2796\) and \(-0.2819\), respectively. The
+corresponding correlations with \(\alpha\) and \(\delta\) are positive and
+range from \(0.2263\) to \(0.2427\). These global correlations therefore do
+not indicate a general accuracy or stability benefit as the inverse score
+increases.
 
 \begin{figure}[H]
     \centering
@@ -261,17 +260,21 @@ as the inverse score increases.
     \label{fig:inverse-spearman}
 \end{figure}
 
-The score-group comparison in Figure~\ref{fig:inverse-score-groups} shows that
-the highest score range behaves differently from the global trend. Among the
-182 retained relations, 78 have an inverse score of zero, 99 have a score in
-the interval \((0,0.5]\), and five have a score above \(0.5\). The middle
-range has lower Hits@10 and higher multiplicity than the zero-score range in
-both models. However, the five relations with scores above \(0.5\) show a
-markedly different result. For RotatE, their mean Hits@10 reaches \(0.8000\),
-while both \(\alpha\) and \(\delta\) are \(0\). For TransE, their mean Hits@10
-is \(0.6866\), while \(\alpha\) and \(\delta\) decrease to \(0.1361\) and
-\(0.0813\), respectively. This is the highest Hits@10 and the lowest
-multiplicity among the three score ranges for both models.
+The global correlations do not show a monotonic benefit across all relations.
+However, the score-group comparison in
+Figure~\ref{fig:inverse-score-groups} reveals a distinct pattern at the upper
+end of the inverse-score distribution. The five relations with scores above
+\(0.5\) show the clearest positive result. For RotatE, mean Hits@10 reaches
+\(0.8000\), compared with \(0.5797\) across all retained relations, while both
+\(\alpha\) and \(\delta\) fall to \(0\). For TransE, mean Hits@10 reaches
+\(0.6866\), compared with the overall mean of \(0.5585\), while \(\alpha\) and
+\(\delta\) decrease from the overall means of \(0.3357\) and \(0.1885\) to
+\(0.1361\) and \(0.0813\), respectively. In the current experiment, relations
+with a strong and clearly identified inverse partner are therefore associated
+with higher accuracy and substantially lower predictive multiplicity in both
+models. The lower score ranges do not show a gradual improvement: relations in
+\((0,0.5]\) have lower Hits@10 and higher multiplicity than those with a score
+of zero.
 
 \begin{figure}[H]
     \centering
@@ -285,14 +288,9 @@ multiplicity among the three score ranges for both models.
 One possible interpretation is that partial or ambiguous reverse support is
 not sufficient to provide a consistent paired constraint. When the inverse
 score is high, the reverse evidence is concentrated on a strong and clearly
-separated partner, which may reduce variation across repeated runs. This
-interpretation is consistent with the sharp change in the highest score range,
-but the current experiment does not test the underlying training mechanism.
-Moreover, this range contains only five relations. The result therefore does
-not establish that inverse scores provide a continuous benefit or that the same
-cutoff will apply in other datasets. It shows that, in the current experiment,
-the clearest positive inverse result is concentrated among relations with very
-high inverse scores.
+separated partner, which may reduce variation across repeated runs. Although
+the high-score range contains only five relations, the same pattern of higher
+accuracy and lower predictive multiplicity appears in both RotatE and TransE.
 
 \subsection{Symmetry Analysis}
 \label{sec:symmetry_analysis}
