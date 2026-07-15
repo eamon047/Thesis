@@ -66,10 +66,14 @@ performance of either model family.
 All link-prediction results are evaluated under the filtered setting, and
 aggregate performance is reported using Hits@10. For each relation,
 we report the relation-level Hits@10, ambiguity(\(\alpha\)), and 
-discrepancy(\(\delta\)) defined in Chapter~\ref{chap:framework}. The main 
-figures and grouped comparisons retain relations with at least ten test triples
-(\(\texttt{test\_support}\geq 10\)); relations below this threshold are not
-used in the displayed comparisons.
+discrepancy(\(\delta\)) defined in Chapter~\ref{chap:framework}. All
+relation-level figures and grouped comparisons in this chapter retain
+relations with at least ten test triples
+(\(\texttt{test\_support}\geq 10\)). Relation-level estimates based on very
+small test support can be sensitive to a small number of query outcomes. This
+threshold is therefore used to reduce the influence of such small-sample
+relations on the displayed comparisons. It retains 182 relations, and unless
+otherwise stated, the following analyses refer to this retained set.
 
 \subsection{Mapping Type Analysis}
 \label{sec:mapping_type_analysis}
@@ -117,9 +121,8 @@ Hits@10 gives the relation-level predictive performance, while \(\alpha\) and
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/mapping-type/rotate-tail.pdf}
-    \caption{RotatE mapping-type results for tail prediction under
-    \(\texttt{test\_support}\geq 10\). The red line marks the
-    mean over all retained relations.}
+    \caption{RotatE mapping-type results for tail prediction. The red line
+    marks the mean over all retained relations.}
     \label{fig:mapping-rotate-tail}
 \end{figure}
 
@@ -137,9 +140,8 @@ prediction.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/mapping-type/rotate-head.pdf}
-    \caption{RotatE mapping-type results for head prediction under
-    \(\texttt{test\_support}\geq 10\). The red line marks the
-    mean over all retained relations.}
+    \caption{RotatE mapping-type results for head prediction. The red line
+    marks the mean over all retained relations.}
     \label{fig:mapping-rotate-head}
 \end{figure}
 
@@ -158,9 +160,8 @@ appears under a different KGE model family.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/mapping-type/transe-tail.pdf}
-    \caption{TransE mapping-type results for tail prediction under
-    \(\texttt{test\_support}\geq 10\). The red line marks the
-    mean over all retained relations.}
+    \caption{TransE mapping-type results for tail prediction. The red line
+    marks the mean over all retained relations.}
     \label{fig:mapping-transe-tail}
 \end{figure}
 
@@ -175,9 +176,8 @@ therefore observed in both models.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/mapping-type/transe-head.pdf}
-    \caption{TransE mapping-type results for head prediction under
-    \(\texttt{test\_support}\geq 10\). The red line marks the
-    mean over all retained relations.}
+    \caption{TransE mapping-type results for head prediction. The red line
+    marks the mean over all retained relations.}
     \label{fig:mapping-transe-head}
 \end{figure}
 
@@ -255,8 +255,7 @@ increases.
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/inverse/spearman.pdf}
     \caption{Spearman correlations between inverse clarity and relation-level
-    Hits@10, \(\alpha\), and \(\delta\) under
-    \(\texttt{test\_support}\geq 10\).}
+    Hits@10, \(\alpha\), and \(\delta\).}
     \label{fig:inverse-spearman}
 \end{figure}
 
@@ -279,9 +278,9 @@ of zero.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/inverse/score-groups.pdf}
-    \caption{Relation-level results grouped by inverse clarity under
-    \(\texttt{test\_support}\geq 10\). The label \emph{Score} in the table
-    refers to the inverse clarity defined in Chapter~\ref{chap:framework}.}
+    \caption{Relation-level results grouped by inverse clarity. The label
+    \emph{Score} in the table refers to the inverse clarity defined in
+    Chapter~\ref{chap:framework}.}
     \label{fig:inverse-score-groups}
 \end{figure}
 
@@ -312,61 +311,44 @@ self-loops, \(\operatorname{Sym}^{\neg\mathrm{loop}}(r)\). The shorter label
 
 \subsubsection{Results}
 
-The global correlations in Figure~\ref{fig:symmetry-spearman} are weak. The
-Spearman correlations with Hits@10 are \(0.0122\) for RotatE and \(0.0117\)
-for TransE. The correlations with \(\alpha\) and \(\delta\) range from
-\(0.0425\) to \(0.1310\). These results do not support a clear monotonic
-association between the excluding-self-loop symmetry score and either
-predictive performance or multiplicity.
+The global correlations in Figure~\ref{fig:symmetry-spearman} do not show a
+clear monotonic association. For both models, the correlation between the
+excluding-self-loop symmetry score and Hits@10 is close to zero. The
+correlations with \(\alpha\) and \(\delta\) are also weak. Thus, the symmetry
+score does not provide a global explanation of either predictive performance or
+multiplicity.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/symmetry/spearman.pdf}
     \caption{Spearman correlations between the excluding-self-loop symmetry
-    score and relation-level Hits@10, \(\alpha\), and \(\delta\) under
-    \(\texttt{test\_support}\geq 10\).}
+    score and relation-level Hits@10, \(\alpha\), and \(\delta\).}
     \label{fig:symmetry-spearman}
 \end{figure}
 
-Figure~\ref{fig:symmetry-score-groups} divides the 182 retained relations into
-164 zero-score relations, six relations with scores in \((0,0.5]\), and 12
-relations with scores above \(0.5\). Hits@10 shows the same non-monotonic
-ordering for both models. The middle range has the lowest Hits@10, while the
-high-score range recovers to a value slightly above the zero-score range. For
-RotatE, the three means are \(0.5815\), \(0.5047\), and \(0.5924\). For
-TransE, they are \(0.5605\), \(0.4725\), and \(0.5742\).
-
-The multiplicity measures do not show the same cross-model pattern. For
-TransE, \(\alpha\) decreases from \(0.4436\) in the middle range to \(0.3512\)
-in the high-score range, and \(\delta\) decreases from \(0.2736\) to
-\(0.2119\). Both values nevertheless remain above those of the zero-score
-range. For RotatE, the high-score range does not show a corresponding
-reduction: \(\alpha\) changes from \(0.3610\) to \(0.3735\), and \(\delta\)
-changes from \(0.2236\) to \(0.2341\). Thus, the recovery in Hits@10 at high
-symmetry scores does not translate into a consistent reduction in predictive
-multiplicity.
+In Figure~\ref{fig:symmetry-score-groups}, Hits@10 falls in the middle score
+range and returns to slightly above the zero-score level in the high-score
+range for both models. The multiplicity results are less consistent. In the
+high-score range, both \(\alpha\) and \(\delta\) remain higher than those of the
+zero-score relations. From the middle to the high-score range, they increase
+slightly for RotatE but decrease for TransE. Higher symmetry scores are
+therefore not consistently associated with lower predictive multiplicity.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\textwidth]{figures/chap5/symmetry/score-groups.pdf}
     \caption{Relation-level results grouped by the excluding-self-loop
-    symmetry score under \(\texttt{test\_support}\geq 10\).}
+    symmetry score.}
     \label{fig:symmetry-score-groups}
 \end{figure}
 
-Symmetry may provide coarse evidence that the two endpoints occupy compatible
-roles, but it does not identify which particular entity should be ranked as the
-correct answer. This distinction may explain why high symmetry is not
-sufficient to produce a consistent stability benefit. However, it does not
-explain why the six relations in the middle range have the lowest Hits@10. The
-small size of this range also makes it difficult to interpret its mean as a
-general penalty associated with weak symmetry. Therefore, the grouped results
-should not be treated as evidence for a general U-shaped relationship.
-Overall, under the current operationalization, symmetry does not provide a
-clean standalone explanation of relation-level predictive multiplicity.
-
-\subsection{Relation Frequency Control}
-\label{sec:relation_frequency_control}
-
-% TODO：暂时不写，等 relation frequency 的结果和作用确认后再决定。
-Only write this section if the result and thesis role are confirmed.
+A possible explanation is that symmetry places only a broad constraint on the
+answer space. If a relation often appears in both directions, the entities on
+its two sides are likely to have similar semantic roles. This may help the
+model rule out clearly unsuitable candidates and may explain the slightly
+higher Hits@10 in the high-score range. Symmetry still does not distinguish
+among candidates that fit the same broad constraint. Different runs may still
+rank these candidates differently, which may explain why \(\alpha\) and
+\(\delta\) in the high-score range remain above those of the zero-score
+relations. However, this explanation does not account for the lower Hits@10 in
+the six-relation middle range, which remains unclear.
