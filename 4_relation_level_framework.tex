@@ -1,6 +1,26 @@
 \section{Relation-Level Analysis Framework}
 \label{chap:framework}
 
+% TODO（章节重构，待第2章和第3章正文完成后执行）：
+% 1. 压缩与第2章重复的 knowledge graph、head/tail query、filtered evaluation
+%    和 mapping-type 基础定义。
+% 2. 保留本文特有的 analysis design：relation-level and side-aware aggregation、
+%    comparable repeated-run setting、eligible subset，以及 relation-level
+%    Hits@10、ambiguity 和 discrepancy。
+% 3. 区分第3章介绍的原论文 metric definitions 与本文的 relation-level
+%    operationalization，删除重复说明，但保留 denominator 和 reference output
+%    等实现边界。
+% 4. Mapping Type 小节后续只保留 training-graph computation、1.5 threshold 的
+%    实际使用和 side-aware grouping；Inverse 和 Symmetry 保留 mutual inverse
+%    strength、inverse clarity、self-loop exclusion 等本文定义。
+% 5. 补充选择 mapping type、inverse 和 symmetry 的理由，并说明 composition、
+%    transitivity 等 higher-order patterns 不在当前实验设计范围内；不要把未分析
+%    的 patterns 写成无关或无效。
+% 6. 待内容迁移后考虑将章名改为 Relation-Level Analysis Design，并判断第5章
+%    的 comparable-model construction 是否应部分移到本章。
+% 7. 在第2章和第3章正文完成前，不移动或重写本章现有正文；迁移时统一更新
+%    cross-references。
+
 The previous chapter introduced predictive multiplicity as a way to measure
 query-level instability among comparable prediction outputs.
 This chapter defines the relation-level analysis framework used in this thesis.

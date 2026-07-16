@@ -1,20 +1,67 @@
 \section{Background}
 \label{chap:background}
 
-This chapter will introduce the background required for the thesis.
-
 \subsection{Knowledge Graphs and Link Prediction}
 
-% TODO：补上知识图谱、三元组、entity、relation 和 link prediction 的基本定义。
+% TODO：介绍 entity、relation、triple 和 knowledge graph 的基本定义，并用
+% missing-head query 与 missing-tail query 说明 link prediction。解释模型如何
+% 对 candidate entities 排序，但暂时不引入 predictive multiplicity。
 
-\subsection{Knowledge Graph Embeddings}
+\subsection{Knowledge Graph Embedding Models}
 
-% TODO：简单介绍知识图谱嵌入的思路，以及 scoring function 是怎么用的。
+% TODO：说明 KGE 如何表示 entities 和 relations，以及 scoring function 如何
+% 用于 candidate ranking。只介绍后文理解 TransE、RotatE 和实验评估所需要的
+% 训练与预测逻辑，不在这里放 hyperparameters。
 
-\subsection{Evaluation Protocol}
+\subsubsection{TransE}
 
-% TODO：说明 filtered ranking 的评估流程和 Hits@10 的含义。
+% TODO：用简单公式介绍 translation-based scoring idea 和本文使用的 score。
+% 如果讨论表达能力或局限，必须有对应文献，并且只保留与后文有关的内容。
 
-\subsection{Models and Dataset}
+\subsubsection{RotatE}
 
-% TODO：按照后面实验够用的程度介绍 RotatE、TransE 和 FB15k-237，这里先不用展开太多。
+% TODO：介绍 complex space 中的 relation rotation 和本文使用的 score。与
+% relation patterns 的联系只写原论文明确支持的 representational capacity，
+% 不提前暗示这些 patterns 会降低 multiplicity。
+
+\subsection{Link Prediction Evaluation}
+
+% TODO：说明 candidate ranking、raw 与 filtered evaluation 的区别，以及
+% Hits@10 的计算和解释。明确 Hits@10 是 aggregate accuracy metric；关于
+% query-level instability 的完整讨论留到第3章。
+
+\subsection{Relation Patterns in Knowledge Graph Embeddings}
+
+% TODO：先说明 relation patterns 是 KGE 文献中分析模型表达能力和知识图谱
+% 结构的既有视角，不是本文临时创造的分类。区分两类常见描述：基于 relation
+% cardinality 的 mapping type，以及 symmetry、antisymmetry、inversion 和
+% composition 等 algebraic or logical patterns。表述重点应是 scoring functions
+% 能否表示这些 patterns，不要写成模型本身“满足”知识图谱中的数学性质。
+% 本文统一使用 relation patterns 作为总称，也不要在这里预设某一种 pattern
+% 一定会降低 predictive multiplicity。
+
+\subsubsection{Mapping Type}
+
+% TODO：介绍 1-1、1-N、M-1 和 M-N，以及 average heads per tail、average
+% tails per head 和 Bordes-style 1.5 threshold。说明 mapping type 需要结合
+% prediction side 理解，并为定义与阈值补充原始或权威引用。本文具体如何从
+% training graph 计算并用于分组，留到第4章。
+
+\subsubsection{Inverse Relations}
+
+% TODO：介绍一般意义上的 inverse relation，并给出简单 triple-level 例子。
+% 这里只解释概念，不提前定义本文的 mutual inverse strength、best partner 或
+% inverse clarity。
+
+\subsubsection{Symmetry}
+
+% TODO：介绍 symmetric relation 的一般定义和简单例子，并与 inverse relations
+% 区分。这里只解释概念，不提前定义本文的 empirical symmetry score 或
+% excluding-self-loop correction。
+
+\subsubsection{Other Relation Patterns}
+
+% TODO：用一小段简要介绍 antisymmetry、relation composition，以及 transitivity
+% 作为同一 relation composition 的特殊情况。此处只建立更完整的文献背景，
+% 不穷举形式定义。随后说明本文只选择 mapping type、inverse 和 symmetry；
+% 选择理由、可计算定义和分析范围在第4章说明。

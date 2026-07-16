@@ -1,20 +1,35 @@
-\section{Predictive Multiplicity}
+\section{Related Work}
 \label{chap:predictive_multiplicity}
 
-This chapter will introduce predictive multiplicity and define the stability metrics used in this thesis.
+\subsection{Model Multiplicity in Machine Learning}
 
-\subsection{From Global Performance to Local Stability}
+% TODO：从 broader machine learning 中的 model multiplicity / Rashomon effect
+% 开始：多个模型可以有相近的 aggregate performance，却在 individual
+% predictions 上作出不同决定。再说明 predictive multiplicity 更关注这种
+% prediction-level difference。可以简要覆盖 classification、deep models 或
+% counterfactual explanations 中的代表性工作，但应回到原始文献，不直接照搬
+% KGE predictive multiplicity 论文的 related-work 叙述。
 
-% TODO：先区分整体预测表现和单个 query 上的预测稳定性。
+\subsection{Predictive Multiplicity in KGE-Based Link Prediction}
 
-\subsection{Ambiguity and Discrepancy}
+% TODO：重点介绍 Zhu et al. 的工作：为什么 aggregate KGE performance 不能
+% 描述 query-level top-k stability、comparable models 的基本思路，以及其
+% global model-level findings。准确区分原论文 protocol 与本文第5章当前采用的
+% comparable repeated-run setting；除非方法与实现证据明确支持，不要写成本文
+% 完整复现了原论文的全部 epsilon-filtered competing-model protocol。
 
-% TODO：按照 predictive multiplicity 的设定，把 ambiguity 和 discrepancy 的定义写清楚。
+\subsection{Measures and Mitigation in the Original Study}
 
-\subsection{Repeated-Run Multiplicity in This Thesis}
+% TODO：解释原研究中 ambiguity 和 discrepancy 分别回答什么问题，并给出后文
+% 所需的定义。两者不能被写成普通 error rate 或所有 queries 上的 disagreement
+% rate。原论文的 voting mitigation 只用一小段说明其目的和主要思路，不展开
+% voting rules 或 social choice theory，因为本文不提出新的 mitigation method。
 
-% TODO：交代目前使用的是不同随机种子的 repeated-run protocol，并说明它不等同于完整的 epsilon-filtered competing-model protocol。
+\subsection{Research Gap and Position of This Thesis}
 
-\subsection{Eligible Query Subset}
-
-% TODO：定义计算 ambiguity 和 discrepancy 时使用的 eligible subset，并说明所有 run 都预测失败的情况属于共同失败，不是这里主要关注的 multiplicity 部分。
+% TODO：指出已有 KGE 研究主要在 global model level 讨论 predictive
+% multiplicity，尚未解释 instability 是否集中在特定 relations、prediction
+% sides 或 relation patterns。本文的位置是 relation-level empirical analysis，
+% 不是新 KGE model，也不是新的 voting or mitigation method。最后自然过渡到
+% 第4章的 analysis design；本文的 eligible subset 和 relation-level aggregation
+% 等 operational choices 留在第4章定义。
