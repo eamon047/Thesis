@@ -1,25 +1,54 @@
 \section{Introduction}
 \label{chap:introduction}
 
-% TODO（第1段：研究背景）：从 knowledge graphs 和 KGE-based link
-% prediction 的大方向开始，说明 link prediction 的基本任务和实际意义。
-% 这里只建立研究背景，不提前展开模型公式、数据集或实验流程。
+Knowledge graphs organize information as entities and relations and provide a
+structured representation of facts. They are used in applications such as
+semantic search, recommendation, and question answering. More recently,
+knowledge graphs have also been combined with large language models in
+retrieval-augmented generation, where structured knowledge can be retrieved as
+external information during inference \citep{pan2024roadmap}. However,
+real-world knowledge graphs are often incomplete, and some valid links between
+entities are missing. Link prediction aims to recover these missing links
+\citep{ji2022survey}.
 
-% TODO（第2段：问题引入）：说明 KGE link prediction 通常使用 Hits@10 等
-% aggregate metrics 评价总体准确率，但这些指标不能说明总体表现相近的模型
-% 是否会对同一个 query 给出相同的 top-10 decision。
+Knowledge graph embedding (KGE) models perform link prediction by learning
+vector representations of entities and relations. For a query with a missing
+head or tail entity, a KGE model assigns scores to candidate entities and ranks
+them according to these scores. Model performance is usually evaluated using
+aggregate ranking metrics. Hits@10, for example, records whether the correct
+entity is ranked among the top ten candidates and averages this outcome over
+the test queries. This metric summarizes overall accuracy, but it does not show
+whether two models with similar scores succeed on the same queries. Two models
+can therefore obtain similar Hits@10 values while making different top-10
+decisions for individual queries.
 
-% TODO（第3段：已有研究与研究缺口）：引入 predictive multiplicity，说明
-% 已有研究已经观察到 query-level prediction instability，但主要在 global
-% model level 汇总。由此提出本文的问题：这种不稳定性是否会随不同的
-% relations 和 relation patterns 而变化。
+This type of query-level instability is referred to as predictive
+multiplicity. Previous work introduced predictive multiplicity for KGE-based
+link prediction and showed that models with comparable overall performance can
+produce different predictions for the same query
+\citep{zhu2024predictive}. That study summarized multiplicity mainly at the
+global model level. This leaves open whether the instability is distributed
+evenly across relations or concentrated in particular relation patterns.
 
-% TODO（第4段：本文工作与贡献）：简要说明本文在 FB15k-237 上分析 RotatE
-% 和 TransE 的 repeated runs，并比较 relation-level Hits@10、ambiguity 和
-% discrepancy。贡献的证据强度要与第5章一致：mapping type 是主要结果；
-% inverse 是探索性副结果；symmetry 是弱结果或负结果。不要把本文写成提出
-% 新 KGE model 或 multiplicity mitigation method，也不要在这里堆叠具体数字。
+This thesis examines predictive multiplicity at the relation level using
+FB15k-237 and repeated runs of RotatE and TransE. We compare relation-level
+Hits@10 and prediction disagreement across repeated runs for three relation
+patterns: how many entities a relation connects on each side (mapping type),
+whether another relation connects the same entities in reverse order (inverse),
+and whether the relation itself connects entity pairs in both directions
+(symmetry). The results show that predictive multiplicity is not evenly
+distributed across relations. The clearest differences appear for mapping type
+and depend on which side is predicted. A small group of relations with clear
+inverse partners has lower multiplicity, while symmetry shows no clear
+association. This relation-level view complements aggregate accuracy by showing
+where prediction instability is concentrated. It may also help future work
+focus on the relations and prediction directions with greater instability.
 
-% TODO（第5段：论文结构）：在第2至第4章的最终结构稳定后，简要说明各章
-% 的功能。避免逐个小节罗列，只说明 background、related work、analysis
-% design、experiments 和 conclusion 之间的关系。
+The remainder of this thesis is organized as follows. Chapter 2 introduces
+knowledge graphs, KGE models, link prediction evaluation, and the relation
+patterns considered in this thesis. Chapter 3 reviews model multiplicity in
+machine learning and previous work on predictive multiplicity in KGE-based
+link prediction. Chapter 4 defines the relation-level analysis framework and
+the metrics used in this thesis. Chapter 5 presents the experimental setup and
+results. Finally, Chapter 6 summarizes the findings, discusses the limitations
+of the current analysis, and outlines directions for future work.
