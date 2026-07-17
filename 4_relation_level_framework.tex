@@ -1,133 +1,106 @@
-\section{Relation-Level Analysis Framework}
+\section{Analysis Design}
 \label{chap:framework}
 
-% TODO（章节重构，待第2章和第3章正文完成后执行）：
-% 1. 压缩与第2章重复的 knowledge graph、head/tail query、filtered evaluation
-%    和 mapping-type 基础定义。
-% 2. 保留本文特有的 analysis design：relation-level and side-aware aggregation、
-%    comparable repeated-run setting、eligible subset，以及 relation-level
-%    Hits@10、ambiguity 和 discrepancy。
-% 3. 区分第3章介绍的原论文 metric definitions 与本文的 relation-level
-%    operationalization，删除重复说明，但保留 denominator 和 reference output
-%    等实现边界。
-% 4. Mapping Type 小节后续只保留 training-graph computation、1.5 threshold 的
-%    实际使用和 side-aware grouping；Inverse 和 Symmetry 保留 mutual inverse
-%    strength、inverse clarity、self-loop exclusion 等本文定义。
-% 5. 补充选择 mapping type、inverse 和 symmetry 的理由，并说明 composition、
-%    transitivity 等 higher-order patterns 不在当前实验设计范围内；不要把未分析
-%    的 patterns 写成无关或无效。
-% 6. 待内容迁移后考虑将章名改为 Relation-Level Analysis Design，并判断第5章
-%    的 comparable-model construction 是否应部分移到本章。
-% 7. 在第2章和第3章正文完成前，不移动或重写本章现有正文；迁移时统一更新
-%    cross-references。
+The previous chapter reviews predictive multiplicity and its use in KGE-based
+link prediction. This chapter describes the analysis design used in this
+thesis. It explains how comparable repeated runs are constructed, how their
+query-level outcomes are aggregated by relation and prediction side, and how
+the three relation patterns are computed from the training graph.
 
-The previous chapter introduced predictive multiplicity as a way to measure
-query-level instability among comparable prediction outputs.
-This chapter defines the relation-level analysis framework used in this thesis.
-The goal is not only to ask whether predictive multiplicity exists, but also to
-identify where it is concentrated in the structure of a knowledge graph.
+\subsection{Comparable Repeated-Run Setting}
 
-The basic unit of link prediction evaluation is a query generated from a test
-triple.
-However, in this thesis, the question is not only whether individual queries are
-solved consistently, but also whether such instability is concentrated in
-particular relations.
-Therefore, we aggregate query-level outcomes into relation-level statistics and
-compare these statistics across candidate structural factors.
-
-This chapter first defines the relation-level aggregation procedure, then
-introduces the relation-level metrics and the structural factors that are used 
-in the experimental chapter.
-
-\subsection{Relation-Level Aggregation}
-
-Let $\mathcal{E}$ be the set of entities and $\mathcal{R}$ be the set of
-relations.
-A knowledge graph consists of triples $(h,r,t) \in
-\mathcal{E}\times\mathcal{R}\times\mathcal{E}$, where $h$ is the head entity,
-$r$ is the relation, and $t$ is the tail entity.
-In the standard link prediction setting, each test triple $(h,r,t)$ gives
- two prediction queries:
+For each model family, we use the training configuration selected through the
+hyperparameter optimization in the original study
+\citep{zhu2024predictive}. One run trained with this configuration is fixed as
+the reference model, and additional runs use the same configuration with
+different random seeds. Let $H_0$ be the filtered Hits@10 of the reference run
+and $H_i$ the filtered Hits@10 of a candidate run. A candidate is included in
+the comparable set when
 \begin{align}
-    q^{\mathrm{head}} = (?,r,t),
-    \qquad
-    q^{\mathrm{tail}} = (h,r,?).
+    |H_i-H_0| < \epsilon,
+    \qquad \epsilon=0.001.
 \end{align}
-The first query asks the model to recover the missing head entity, while the
-second asks it to recover the missing tail entity.
+This process is repeated until the outputs required for the multiplicity
+analysis have been collected. The performance condition keeps the comparison
+within a small neighborhood of aggregate link-prediction performance, while
+the different random seeds allow query-level decisions to vary. The reference
+run is fixed before the relation-level analysis and provides the reference
+output used in the multiplicity measures below.
 
-For each relation $r$, let $\mathcal{Q}^{\mathrm{head}}_r$ and
-$\mathcal{Q}^{\mathrm{tail}}_r$ denote the sets of head-prediction and
-tail-prediction queries whose relation is $r$, respectively.
-We also write
+Figure~\ref{fig:experimental-workflow} summarizes the repeated-run setting and
+the subsequent relation-level analysis.
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{7pt}
+    \begin{tabular}{c}
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Use the optimized configuration from the original study\\
+        Train and fix a reference run; record $H_0$}}\\[4pt]
+        $\Downarrow$\\[-1pt]
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Fix the selected training configuration\\
+        Train a candidate using a different random seed}}\\[4pt]
+        $\Downarrow$\\[-1pt]
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Compare aggregate performance using\\
+        $\lvert H_i-H_0\rvert < \epsilon$, with $\epsilon=0.001$\\
+        Retain the candidate if the condition is satisfied; otherwise train
+        another candidate}}\\[4pt]
+        $\Downarrow$\\[-1pt]
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Repeat until the comparable run set is formed}}\\[4pt]
+        $\Downarrow$\\[-1pt]
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Compute filtered top-10 decisions and relation-level
+        Hits@10, ambiguity ($\alpha$), and discrepancy ($\delta$)}}\\[4pt]
+        $\Downarrow$\\[-1pt]
+        \fbox{\parbox{0.7\textwidth}{\centering
+        Analyze multiplicity by relation pattern and prediction side}}
+    \end{tabular}
+    \caption{Comparable repeated-run setting and relation-level analysis
+    procedure used in this thesis.}
+    \label{fig:experimental-workflow}
+\end{figure}
+
+\subsection{Relation-Level and Side-Aware Aggregation}
+
+Each test triple gives a head-prediction query and a tail-prediction query, as
+described in Chapter~\ref{chap:background}. For relation $r$, let
+$\mathcal{Q}^{\mathrm{head}}_r$ and $\mathcal{Q}^{\mathrm{tail}}_r$ denote the
+corresponding query sets. Their union is
 \begin{align}
     \mathcal{Q}_r
     =
     \mathcal{Q}^{\mathrm{head}}_r
     \cup
-    \mathcal{Q}^{\mathrm{tail}}_r
+    \mathcal{Q}^{\mathrm{tail}}_r.
 \end{align}
-for the combined query set of relation $r$.
 If relation $r$ appears in $n_r$ test triples, then
 $|\mathcal{Q}^{\mathrm{head}}_r|=|\mathcal{Q}^{\mathrm{tail}}_r|=n_r$ and
-$|\mathcal{Q}_r|=2n_r$.
-We call $n_r$ the test support of relation $r$, because it gives the
-number of test triples available for computing relation-level statistics.
+$|\mathcal{Q}_r|=2n_r$. We refer to $n_r$ as the test support of relation
+$r$.
 
-The relation-level aggregation used in this thesis computes predictive
-performance and multiplicity statistics for each relation separately.
-This choice is important for two reasons.
-Firstly, it prevents a small number of high-support relations from dominating the
-analysis.
-Secondly, it makes it possible to compare relations as structural units.
-Instead of asking only whether the entire test set has high or low
-multiplicity, we ask whether relations with different structural properties
-show systematically different multiplicity behavior.
+The analysis first computes performance and multiplicity for each relation
+separately. This makes relations, rather than individual test items, the units
+compared across relation patterns. It also avoids reporting only a test-set
+average dominated by relations with high test support.
 
-In addition to the combined relation-level view over $\mathcal{Q}_r$, this
-thesis keeps the prediction side when it is structurally relevant.
-For example, many-to-one and one-to-many mapping patterns have different
-implications for head prediction and tail prediction.
-Therefore, the main mapping-type analysis in Chapter~\ref{chap:experiments}
-uses side-aware relation-level aggregation over
-$\mathcal{Q}^{\mathrm{head}}_r$ and $\mathcal{Q}^{\mathrm{tail}}_r$, rather
-than relying only on the combined set $\mathcal{Q}_r$.
+The prediction side is retained when it is part of the relation pattern. For a
+$1$-$N$ relation, tail prediction targets the many-valued side, whereas head
+prediction targets the opposite side. For an $M$-$1$ relation, the roles are
+reversed. The main mapping-type analysis therefore uses
+$\mathcal{Q}^{\mathrm{head}}_r$ and $\mathcal{Q}^{\mathrm{tail}}_r$ separately
+instead of relying only on the combined set $\mathcal{Q}_r$.
 
-All ranking results are interpreted under the filtered evaluation convention,
-which means that when a query is evaluated, other known true answers for the 
-same query are removed before ranking.
-Consequently, a lower Hits@10 or higher multiplicity for a structurally harder
-prediction direction should not be interpreted simply as an artifact of
-multiple true answers competing with each other in an unfiltered candidate set.
-On the contrary, it indicates that even after filtering known true answers, 
-the ranking decision for that relation direction remains more difficult or less
-stable across repeated outputs.
+\subsection{Relation-Level Metrics in This Thesis}
 
-\subsection{Relation-Level Aggregation of Metrics}
-
-Chapter~\ref{chap:predictive_multiplicity} introduces Hits@10, ambiguity, and
-discrepancy as metrics for link prediction performance and predictive
-multiplicity.
-The relation-level versions use the following aggregation.
-% TODO：等第3章写好后再看这里要不要缩短。如果 T_k、Delta、alpha 和
-% delta 已经在第3章完整定义，这里就只保留 T_r 和 T_r^{elig} 上的
-% relation-level aggregation，以及本论文实现中需要特别说明的部分。
-
-For a fixed dataset, KGE model family, and hyperparameter setting, the same
-configuration is trained multiple times with different random seeds.
-Let $\mathcal{O}=\{o_1,\ldots,o_m\}$ denote the resulting set of complete
-evaluation outputs.
-Here, $o_i$ is the output of the $i$-th seed run on all evaluated test items,
-not the output for a single query.
-It records the rank assigned to the correct answer entity for each evaluated
-item.
-We use $o$ as a generic element of $\mathcal{O}$ in the definitions below.
-Each evaluated item consists of a query and its correct answer entity.
-We write it as $\tau=(q,e)$, where $q$ is a head-prediction or tail-prediction
-query and $e$ is the held-out correct answer.
-For relation $r$, let $\mathcal{T}_r$ be the set of such evaluated items
-corresponding to $\mathcal{Q}_r$.
-For an output $o \in \mathcal{O}$ and an evaluated item $\tau=(q,e)$, define
+Let $\mathcal{O}=\{o_1,\ldots,o_m\}$ be the complete evaluation outputs of the
+comparable repeated runs. Each evaluated item is written as $\tau=(q,e)$,
+where $q$ is a head- or tail-prediction query and $e$ is its held-out correct
+answer. For relation $r$, let $\mathcal{T}_r$ be the set of evaluated items
+whose query contains $r$. For output $o\in\mathcal{O}$, define the top-$k$
+decision
 \begin{align}
     T_k(o,\tau) =
     \begin{cases}
@@ -135,11 +108,10 @@ For an output $o \in \mathcal{O}$ and an evaluated item $\tau=(q,e)$, define
         0, & \text{otherwise.}
     \end{cases}
 \end{align}
-In the experiments, we use $k=10$.
+The experiments use $k=10$.
 
-For relation $r$, the relation-level Hits@10 is computed by averaging the
-top-$k$ decision over the evaluated items of relation $r$ and over repeated
-outputs:
+Relation-level Hits@10 averages this decision over the evaluated items of a
+relation and over the repeated outputs:
 \begin{align}
     hits_r
     =
@@ -148,37 +120,27 @@ outputs:
     \sum_{\tau\in\mathcal{T}_r}
     T_k(o,\tau).
 \end{align}
-When the prediction side is analyzed separately, $\mathcal{T}_r$ is replaced by
-the corresponding head-prediction or tail-prediction evaluated-item set.
+For a side-specific result, $\mathcal{T}_r$ is replaced by the corresponding
+head- or tail-prediction evaluated-item set.
 
-The multiplicity metrics are computed on a relation-specific eligible subset.
-% NOTE: The eligible subset excludes query-answer items missed by all repeated
-% outputs. Without this restriction, all-miss items would be counted as
-% "stable" because every output gives the same miss decision. This can make a
-% very difficult relation look low-multiplicity simply because all runs fail on
-% many of its queries. The eligible subset keeps alpha_r and delta_r focused on
-% evaluated items where success is observed at least once, so the metrics
-% measure whether that success is stable across repeated outputs.
-For relation $r$, we define
+The multiplicity measures use a relation-specific eligible subset:
 \begin{align}
     \mathcal{T}^{\mathrm{elig}}_r
     =
-    \{\tau\in\mathcal{T}_r \mid \max_{o\in\mathcal{O}} T_k(o,\tau)=1\}.
+    \{\tau\in\mathcal{T}_r
+    \mid \max_{o\in\mathcal{O}} T_k(o,\tau)=1\}.
 \end{align}
-This subset contains evaluated items for which at least one repeated output
-succeeds within top-$k$.
-Evaluated items missed by all outputs are treated as shared failures.
-They are excluded from the denominator of the multiplicity metrics.
+It contains the evaluated items for which at least one repeated output ranks
+the correct answer within top-$k$. Items missed by every output are shared
+failures and are excluded from the denominator of the multiplicity measures.
 
-Let $o_0$ denote the reference output used in the multiplicity computation.
-Following the notation of Chapter~\ref{chap:predictive_multiplicity}, define
-the conflict indicator
+Let $o_0$ be the fixed reference output. The conflict indicator is
 \begin{align}
     \Delta(o,\tau)
     =
-    \mathbf{1}\left[T_k(o,\tau)\neq T_k(o_0,\tau)\right].
+    \mathbf{1}\!\left[T_k(o,\tau)\neq T_k(o_0,\tau)\right].
 \end{align}
-The relation-level ambiguity score is then defined as
+Relation-level ambiguity is
 \begin{align}
     \alpha_r
     =
@@ -187,11 +149,8 @@ The relation-level ambiguity score is then defined as
     \max_{o\in\mathcal{O}}
     \Delta(o,\tau).
 \end{align}
-$\alpha_r$ measures the proportion of eligible evaluated items for which at
-least one repeated output conflicts with the reference output.
-
-The relation-level discrepancy score uses the same eligible subset.
-We define
+It is the proportion of eligible items for which at least one repeated output
+conflicts with the reference output. Relation-level discrepancy is
 \begin{align}
     \delta_r
     =
@@ -200,28 +159,20 @@ We define
     \sum_{\tau\in\mathcal{T}^{\mathrm{elig}}_r}
     \Delta(o,\tau).
 \end{align}
-$\delta_r$ measures the largest hit-or-miss disagreement between the reference
-output and another repeated output for relation $r$.
+It is the largest hit-or-miss disagreement between one repeated output and the
+reference output for relation $r$. Because both denominators use
+$\mathcal{T}^{\mathrm{elig}}_r$, $\alpha_r$ and $\delta_r$ describe
+instability among items where success is observed at least once. They are not
+error rates over all test queries of the relation.
 
-Because the denominator is $\mathcal{T}^{\mathrm{elig}}_r$, $\alpha_r$ and
-$\delta_r$ should be interpreted as instability among evaluated items where
-success is observed at least once, not as error rates over all test queries of
-relation $r$.
+\subsection{Operational Definitions of Relation Patterns}
 
-\subsection{Candidate Structural Factors}
-
-Predictive multiplicity is a top-$k$ ranking instability.
-Therefore, this thesis focuses on relation-level factors that may affect the
-ambiguity of the answer space or the structural support available in the
-training graph.
-The factors considered here are not an exhaustive list of knowledge graph
-patterns. For example, compositional patterns, transitive relations, and other
-higher-order structures may also affect link prediction stability.
-
-The present framework considers three structural factors computed from the
-training graph: mapping type, inverse support, and symmetry. Since each factor
-is defined at the relation level, it can be compared directly with the
-relation-level Hits@10, ambiguity, and discrepancy metrics defined above.
+Chapter~\ref{chap:background} introduces the general relation patterns used in
+this thesis. The present analysis computes mapping type, inverse support, and
+symmetry from the training graph. These three patterns can be summarized for
+individual relations and compared with the relation-level metrics above.
+Composition and transitivity require relation-path analysis and are outside the
+current design.
 
 Let the training graph be
 \begin{align}
@@ -229,21 +180,19 @@ Let the training graph be
     \subseteq
     \mathcal{E}\times\mathcal{R}\times\mathcal{E}.
 \end{align}
-For each relation $r$, define its directed edge set in the training graph as
+For each relation $r$, its directed edge set is
 \begin{align}
     E_r
     =
-    \{(h,t)\mid (h,r,t)\in\mathcal{G}_{\mathrm{train}}\}.
+    \{(h,t)\mid(h,r,t)\in\mathcal{G}_{\mathrm{train}}\}.
 \end{align}
-All structural factors in this section are computed from
+All relation-pattern variables below are computed from
 $\mathcal{G}_{\mathrm{train}}$.
 
 \subsubsection{Mapping Type}
 
-\emph{Mapping type} describes how many heads and tails are connected by a
-relation in the training graph.
-Following the LibKGE/Bordes-style convention used in the experiments, two
-average connectivity values are computed for each relation:
+Following the convention used in the experiments
+\citep{bordes2013translating}, two average connectivity values are computed:
 \begin{align}
     d_{\mathrm{tail}}(r)
     &=
@@ -255,91 +204,43 @@ average connectivity values are computed for each relation:
     \frac{|E_r|}
     {|\{t\mid \exists h,\ (h,t)\in E_r\}|}.
 \end{align}
-$d_{\mathrm{tail}}(r)$ is the average number of tail entities per observed
-$(h,r)$ pair.
-$d_{\mathrm{head}}(r)$ is the average number of head entities per observed
-$(r,t)$ pair.
-A side is classified as many only when the corresponding average connectivity is
-greater than $1.5$.
-This gives four mapping types:
-\begin{itemize}
-    \item $1$-$1$: $d_{\mathrm{head}}(r)\leq 1.5$ and
-    $d_{\mathrm{tail}}(r)\leq 1.5$; neither side is many;
-    \item $1$-$N$: $d_{\mathrm{head}}(r)\leq 1.5$ and
-    $d_{\mathrm{tail}}(r)>1.5$; the tail side is many;
-    \item $M$-$1$: $d_{\mathrm{head}}(r)>1.5$ and
-    $d_{\mathrm{tail}}(r)\leq 1.5$; the head side is many;
-    \item $M$-$N$: $d_{\mathrm{head}}(r)>1.5$ and
-    $d_{\mathrm{tail}}(r)>1.5$; both sides are many.
-\end{itemize}
+$d_{\mathrm{tail}}(r)$ is the average number of tails per observed head, and
+$d_{\mathrm{head}}(r)$ is the average number of heads per observed tail. A
+side is classified as many when its corresponding value is greater than
+$1.5$. Combining the two classifications gives the $1$-$1$, $1$-$N$,
+$M$-$1$, and $M$-$N$ types introduced in
+Chapter~\ref{chap:background}.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.78\textwidth]{figures/chap4/sum.pdf}
-    \caption{Illustration of the four mapping types.
-    Left nodes represent head-side entities and right nodes represent
-    tail-side entities. The relation name shown in each part gives the
-    example relation, and each edge indicates that the two entities are
-    connected by that relation. The categories are determined by the average
-    head-side and tail-side connectivity in the training graph.}
-    \label{fig:mapping-type-schematic}
-\end{figure}
+The mapping-type analysis is side-aware. Tail prediction is treated as
+prediction on the many side for $1$-$N$ relations, and head prediction is
+treated as prediction on the many side for $M$-$1$ relations. This distinction
+determines the head- and tail-specific grouping used in
+Chapter~\ref{chap:experiments}.
 
-Figure~\ref{fig:mapping-type-schematic} illustrates the four categories.
-In the upper-left panel, the relation \texttt{paper\_has\_DOI} connects each
-\texttt{paper} entity to one \texttt{DOI} entity, and no \texttt{DOI} entity is
-shared by multiple \texttt{paper} entities.Therefore, this panel therefore 
-illustrates a $1$-$1$ type.
-The other panels follow the same convention for $1$-$N$, $M$-$1$, and $M$-$N$
-relations.
+\subsubsection{Inverse Support}
 
-Mapping type must also be interpreted together with prediction side.
-For example, in a $1$-$N$ relation, tail prediction asks the model to rank 
-candidates on the many-valued tail side, while head prediction is on the side 
-that is not classified as many.
-The reverse stands for $M$-$1$ relations: head prediction is on the many-valued
-head side, while tail prediction is on the side that is not classified as many.
-For this reason, the mapping-type analysis in Chapter~\ref{chap:experiments}
-uses side-aware relation-level aggregation rather than only the combined
-head-and-tail view.
-
-\subsubsection{Inverse}
-
-In this thesis, \emph{inverse} refers to operational inverse support computed
-from reversed edge overlap in the training graph.
-For two relations $r_1$ and $r_2$, if triples of the form $(h,r_1,t)$ are often
-accompanied by triples of the form $(t,r_2,h)$, then $r_2$ provides inverse
-support for $r_1$.
-For example, the FB15k-237 \texttt{campus-to-institution} relation and
-\texttt{institution-to-campus} relation form an intuitive inverse case: a
-\texttt{campus-to-institution} edge is naturally reversed by an
-\texttt{institution-to-campus} edge.
-
-For a relation $r$, define the reversed edge set
+For relation $r$, define the reversed edge set
 \begin{align}
     E_r^{\mathrm{rev}}
     =
-    \{(t,h)\mid (h,t)\in E_r\}.
+    \{(t,h)\mid(h,t)\in E_r\}.
 \end{align}
-For an ordered relation pair $(r_1,r_2)$, the directional inverse score is
+For an ordered pair $(r_1,r_2)$, the directional inverse score is
 \begin{align}
     s(r_1\rightarrow r_2)
     =
     \frac{|E_{r_1}\cap E_{r_2}^{\mathrm{rev}}|}{|E_{r_1}|}.
 \end{align}
-This score measures the proportion of $r_1$ edges that are supported by
-reversed $r_2$ edges.
-It is directional, so $s(r_1\rightarrow r_2)$ and
+It is the proportion of $r_1$ edges supported by reversed $r_2$ edges. The
+score is directional, so $s(r_1\rightarrow r_2)$ and
 $s(r_2\rightarrow r_1)$ need not be equal.
 
-The directional score is useful as a baseline, but it can also be high for
-one-sided containment.
-Therefore, the main inverse analysis also uses a stricter mutual score.
-Let
+Because a directional score can be high under one-sided containment, the main
+inverse analysis uses a stricter mutual score. Let
 \begin{align}
-    s_{12} = s(r_1\rightarrow r_2),
+    s_{12}=s(r_1\rightarrow r_2),
     \qquad
-    s_{21} = s(r_2\rightarrow r_1).
+    s_{21}=s(r_2\rightarrow r_1).
 \end{align}
 The pair-level mutual inverse score is
 \begin{align}
@@ -347,46 +248,40 @@ The pair-level mutual inverse score is
     =
     \begin{cases}
         \dfrac{2s_{12}s_{21}}{s_{12}+s_{21}},
-        & \text{if } s_{12}+s_{21}>0,\\
+        & \text{if }s_{12}+s_{21}>0,\\
         0, & \text{otherwise.}
     \end{cases}
 \end{align}
-This harmonic-mean form assigns a high value only when both directions have
-substantial reverse support.
+This harmonic mean is high only when both directions have substantial reverse
+support.
 
-To keep the analysis relation-level, the pair-level score is summarized for
-each relation $r$ by its strongest mutual inverse partner:
+For each relation, the strongest mutual inverse partner gives
 \begin{align}
     \operatorname{MutInvStrength}(r)
     =
     \max_{r'\in\mathcal{R},\,r'\neq r}
     s_{\mathrm{mut}}(r,r').
 \end{align}
-The corresponding best partner is the relation that attains this maximum.
-The analysis also uses inverse clarity:
+Inverse clarity measures the separation between the strongest and second
+strongest partners:
 \begin{align}
     \operatorname{InvClarity}(r)
     =
-    \max\left(
+    \max\!\left(
         0,\,
         \operatorname{MutInvStrength}(r)
         -
         \operatorname{SecondBestMutInvStrength}(r)
     \right).
 \end{align}
-This value measures whether the best mutual inverse partner is clearly separated
-from the second-best candidate.
-In the result files, these two relation-level variables are recorded as
-\texttt{mutual\_inverse\_strength} and \texttt{inverse\_clarity}.
-
 \subsubsection{Symmetry}
 
-\emph{Symmetry} is a single-relation property.
-For a relation $r$, define the symmetric-supported edge set as
+For relation $r$, define the edge set supported in both directions under the
+same relation:
 \begin{align}
     E_r^{\mathrm{sym}}
     =
-    \{(h,t)\in E_r\mid (t,h)\in E_r\}.
+    \{(h,t)\in E_r\mid(t,h)\in E_r\}.
 \end{align}
 The raw symmetry score is
 \begin{align}
@@ -394,17 +289,9 @@ The raw symmetry score is
     =
     \frac{|E_r^{\mathrm{sym}}|}{|E_r|}.
 \end{align}
-It measures the proportion of training edges for relation $r$ that have a
-reverse edge under the same relation.
-For example, a \text{sibling} relation can have high symmetry because
-``Emma Thompson sibling Sophie Thompson'' and
-``Sophie Thompson sibling Emma Thompson'' may both appear in the training graph.
 
-Raw symmetry can be inflated by self-loops.
-For a self-loop $(h,r,h)$, the reversed edge is the same edge, so it is counted
-as symmetric even when the relation does not show strong bidirectional behavior.
-To avoid this effect, the main symmetry variable excludes self-loops.
-Define
+Self-loops can inflate this score because reversing $(h,r,h)$ gives the same
+edge. The main symmetry variable therefore excludes self-loops. Define
 \begin{align}
     E_r^{\neg\mathrm{loop}}
     &=
@@ -414,21 +301,19 @@ Define
     &=
     \{(h,t)\in E_r\mid h\neq t,\ (t,h)\in E_r\}.
 \end{align}
-The excluding-self-loop symmetry score is
+The excluding-self-loop score is
 \begin{align}
     \operatorname{Sym}^{\neg\mathrm{loop}}(r)
     =
     \frac{|E_r^{\mathrm{sym},\neg\mathrm{loop}}|}
     {|E_r^{\neg\mathrm{loop}}|}.
 \end{align}
-When $|E_r^{\neg\mathrm{loop}}|=0$, the score is set to $0$ in the
-implementation.
-This thesis uses $\operatorname{Sym}^{\neg\mathrm{loop}}(r)$ as the main
-symmetry factor.
-The raw score is retained only as a diagnostic value for self-loop sensitivity.
+When $|E_r^{\neg\mathrm{loop}}|=0$, the implementation sets this score to
+$0$. The experiments use $\operatorname{Sym}^{\neg\mathrm{loop}}(r)$ as the
+main symmetry variable and retain the raw score only to check self-loop
+sensitivity.
 
-Low symmetry is not treated as antisymmetry in this thesis.
-$1-\operatorname{Sym}^{\neg\mathrm{loop}}(r)$ only measures a lack of observed
-same-relation reverse support.
-Strict antisymmetry is a stronger mathematical property and is not introduced as
-a separate factor in the present analysis.
+Low symmetry is not treated as antisymmetry. The quantity
+$1-\operatorname{Sym}^{\neg\mathrm{loop}}(r)$ shows only a lack of observed
+same-relation reverse support, whereas strict antisymmetry is a stronger
+mathematical condition.

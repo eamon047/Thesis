@@ -16,9 +16,9 @@ $r$, and a tail entity $t$. Figure~\ref{fig:example-knowledge-graph}
 illustrates this structure. For example, the edge from \emph{Mount Everest}
 to \emph{Mountain} labeled \emph{instance of} corresponds to one triple.
 
-\begin{figure}[t]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.68\textwidth]{figures/chap2/map-thesis.pdf}
+    \includegraphics[width=0.68\textwidth]{figures/chap2/map.pdf}
     \caption{An example knowledge graph. Nodes represent entities, and each
     labeled directed edge corresponds to a relational triple.}
     \label{fig:example-knowledge-graph}
@@ -47,11 +47,11 @@ used to rank the candidate entities. This thesis considers TransE and RotatE,
 which model relations using translation and rotation, respectively. Their
 geometric operations are illustrated in Figure~\ref{fig:kge-geometries}.
 
-\begin{figure}[t]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.40\textwidth]{figures/chap2/TransE-thesis.pdf}
+    \includegraphics[width=0.40\textwidth]{figures/chap2/TransE.pdf}
     \hfill
-    \includegraphics[width=0.40\textwidth]{figures/chap2/RotatE-thesis.pdf}
+    \includegraphics[width=0.40\textwidth]{figures/chap2/RotatE.pdf}
     \caption{Geometric interpretation of TransE (left) and RotatE (right).
     TransE translates the head embedding by the relation embedding, whereas
     RotatE applies the relation as a rotation in complex space. In both
@@ -94,42 +94,108 @@ As in TransE, a smaller distance produces a higher score.
 
 \subsection{Link Prediction Evaluation}
 
-% TODO：说明 candidate ranking、raw 与 filtered evaluation 的区别，以及
-% Hits@10 的计算和解释。明确 Hits@10 是 aggregate accuracy metric；关于
-% query-level instability 的完整讨论留到第3章。
+A KGE model evaluates a link-prediction query by scoring every candidate
+entity. For a tail-prediction query $(h,r,?)$, each candidate $e\in\mathcal{E}$
+forms the triple $(h,r,e)$. The candidates are ranked from the highest score to
+the lowest. Head prediction follows the same procedure for triples $(e,r,t)$.
+
+Two ranking settings are commonly reported in KGE evaluation
+\citep{bordes2013translating}. In the raw setting, the model ranks the correct
+entity against all candidate entities. In the filtered setting, other
+candidates that form known true triples are removed before the rank of the
+held-out correct entity is computed. This avoids penalizing the model when
+another correct answer is ranked above the held-out answer. The experiments in
+this thesis use filtered evaluation.
+
+Let $\mathcal{T}$ be a set of evaluated query--answer pairs, and let
+$\operatorname{rank}(\tau)$ be the filtered rank of the correct entity for
+$\tau\in\mathcal{T}$. Hits@10 is
+\begin{align}
+    \operatorname{Hits@10}
+    =
+    \frac{1}{|\mathcal{T}|}
+    \sum_{\tau\in\mathcal{T}}
+    \mathbf{1}\!\left[\operatorname{rank}(\tau)\leq 10\right].
+\end{align}
+It is the proportion of evaluated items for which the correct entity is ranked
+within the top ten. Hits@10 summarizes accuracy across a set of items, but it
+does not show which items are solved by each model. Two models can therefore
+have similar Hits@10 while succeeding on different queries.
+Chapter~\ref{chap:predictive_multiplicity} discusses this distinction in
+relation to predictive multiplicity.
 
 \subsection{Relation Patterns in Knowledge Graph Embeddings}
 
-% TODO：先说明 relation patterns 是 KGE 文献中分析模型表达能力和知识图谱
-% 结构的既有视角，不是本文临时创造的分类。区分两类常见描述：基于 relation
-% cardinality 的 mapping type，以及 symmetry、antisymmetry、inversion 和
-% composition 等 algebraic or logical patterns。表述重点应是 scoring functions
-% 能否表示这些 patterns，不要写成模型本身“满足”知识图谱中的数学性质。
-% 本文统一使用 relation patterns 作为总称，也不要在这里预设某一种 pattern
-% 一定会降低 predictive multiplicity。
+Relations in a knowledge graph can be described by recurring structural
+patterns. KGE studies use these patterns to analyze what kinds of triples a
+scoring function can represent. Two common descriptions are cardinality-based
+mapping types and logical patterns such as symmetry, antisymmetry, inversion,
+and composition \citep{bordes2013translating,sun2019rotate,zhu2024rotation}.
+This thesis uses \emph{relation patterns} as an umbrella term for these
+descriptions. These terms describe graph structure; their association with
+predictive multiplicity is examined empirically in
+Chapter~\ref{chap:experiments}.
 
 \subsubsection{Mapping Type}
 
-% TODO：介绍 1-1、1-N、M-1 和 M-N，以及 average heads per tail、average
-% tails per head 和 Bordes-style 1.5 threshold。说明 mapping type 需要结合
-% prediction side 理解，并为定义与阈值补充原始或权威引用。本文具体如何从
-% training graph 计算并用于分组，留到第4章。
+Mapping type describes whether the head and tail sides of a relation tend to
+connect one or many entities \citep{bordes2013translating}. The four common
+categories are:
+\begin{itemize}
+    \item $1$-$1$: one head is associated with one tail, and vice versa;
+    \item $1$-$N$: one head can be associated with multiple tails;
+    \item $M$-$1$: multiple heads can be associated with one tail;
+    \item $M$-$N$: multiple entities can occur on both sides.
+\end{itemize}
+Figure~\ref{fig:mapping-type-schematic} gives an example of each category.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/chap4/sum.pdf}
+    \caption{Examples of the four mapping types. Nodes on the left and right
+    represent head and tail entities, respectively, and each edge represents
+    an observed triple under the relation shown in that panel.}
+    \label{fig:mapping-type-schematic}
+\end{figure}
+
+Mapping type must be read together with the prediction side. For a $1$-$N$
+relation, tail prediction targets the side classified as many. For an $M$-$1$
+relation, head prediction targets the side classified as many. The averages
+and threshold used to assign these categories in this thesis are defined in
+Chapter~\ref{chap:framework}.
 
 \subsubsection{Inverse Relations}
 
-% TODO：介绍一般意义上的 inverse relation，并给出简单 triple-level 例子。
-% 这里只解释概念，不提前定义本文的 mutual inverse strength、best partner 或
-% inverse clarity。
+Two relations are inverses when they describe the same connection in opposite
+directions \citep{sun2019rotate,zhu2024rotation}. If $r_1$ and $r_2$ form an
+inverse pair, a triple $(h,r_1,t)$ corresponds to $(t,r_2,h)$. For example,
+\emph{parent of} and \emph{child of} reverse both the direction of the edge and
+the relation label. This is a general relation-level concept.
+Chapter~\ref{chap:framework} later defines how the present study measures
+partial inverse support in the training graph.
 
 \subsubsection{Symmetry}
 
-% TODO：介绍 symmetric relation 的一般定义和简单例子，并与 inverse relations
-% 区分。这里只解释概念，不提前定义本文的 empirical symmetry score 或
-% excluding-self-loop correction。
+A relation is symmetric when reversing its two entities preserves the same
+relation \citep{sun2019rotate,zhu2024rotation}. In other words, if
+$(h,r,t)$ holds, then $(t,r,h)$ also holds. Relations such as \emph{sibling of}
+can have this form. Symmetry can be viewed as reversal under the same relation,
+whereas the inverse case above uses a different relation as the reverse
+partner. The empirical symmetry measure used in this thesis is given in
+Chapter~\ref{chap:framework}.
 
 \subsubsection{Other Relation Patterns}
 
-% TODO：用一小段简要介绍 antisymmetry、relation composition，以及 transitivity
-% 作为同一 relation composition 的特殊情况。此处只建立更完整的文献背景，
-% 不穷举形式定义。随后说明本文只选择 mapping type、inverse 和 symmetry；
-% 选择理由、可计算定义和分析范围在第4章说明。
+Antisymmetry and relation composition are also studied in KGE research
+\citep{sun2019rotate,zhu2024rotation}. For an antisymmetric relation, two
+distinct entities cannot be connected by that relation in both directions.
+Composition concerns a path of relations: if $(x,r_1,y)$ and $(y,r_2,z)$ hold,
+their combination may imply $(x,r_3,z)$. The order of $r_1$ and $r_2$ may also
+matter. Transitivity is a special case in which the same relation takes the
+roles of $r_1$, $r_2$, and $r_3$.
+
+The present study focuses on mapping type, inverse relations, and symmetry.
+Composition and other path-based patterns require an analysis of relation
+sequences and are outside the current relation-level design. The selection and
+operational definitions of the three analyzed patterns are described in
+Chapter~\ref{chap:framework}.
