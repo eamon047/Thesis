@@ -3,26 +3,94 @@
 
 \subsection{Knowledge Graphs and Link Prediction}
 
-% TODO：介绍 entity、relation、triple 和 knowledge graph 的基本定义，并用
-% missing-head query 与 missing-tail query 说明 link prediction。解释模型如何
-% 对 candidate entities 排序，但暂时不引入 predictive multiplicity。
+A knowledge graph represents facts as directed relational triples
+\citep{ji2022survey}. Let $\mathcal{E}$ be the set of entities and
+$\mathcal{R}$ the set of relations. A knowledge graph can be written as
+\begin{align}
+    \mathcal{G}
+    \subseteq
+    \mathcal{E}\times\mathcal{R}\times\mathcal{E}.
+\end{align}
+Each triple $(h,r,t)\in\mathcal{G}$ contains a head entity $h$, a relation
+$r$, and a tail entity $t$. Figure~\ref{fig:example-knowledge-graph}
+illustrates this structure. For example, the edge from \emph{Mount Everest}
+to \emph{Mountain} labeled \emph{instance of} corresponds to one triple.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.68\textwidth]{figures/chap2/map-thesis.pdf}
+    \caption{An example knowledge graph. Nodes represent entities, and each
+    labeled directed edge corresponds to a relational triple.}
+    \label{fig:example-knowledge-graph}
+\end{figure}
+
+Since a knowledge graph may be incomplete, link prediction attempts to recover
+missing entities from incomplete triples. A triple $(h,r,t)$ gives two query
+forms:
+\begin{align}
+    q^{\mathrm{head}}=(?,r,t),
+    \qquad
+    q^{\mathrm{tail}}=(h,r,?).
+\end{align}
+The first query asks for the missing head entity, while the second asks for the
+missing tail entity. Candidate entities from $\mathcal{E}$ are inserted into
+the missing position, and the resulting triples are ranked by the model.
 
 \subsection{Knowledge Graph Embedding Models}
 
-% TODO：说明 KGE 如何表示 entities 和 relations，以及 scoring function 如何
-% 用于 candidate ranking。只介绍后文理解 TransE、RotatE 和实验评估所需要的
-% 训练与预测逻辑，不在这里放 hyperparameters。
+Knowledge graph embedding (KGE) models assign learned low-dimensional
+representations to entities and relations. A scoring function uses these
+representations to measure the plausibility of a triple. The models used in
+this thesis learn their representations by comparing observed training triples
+with sampled alternatives. For link prediction, the same scoring function is
+used to rank the candidate entities. This thesis considers TransE and RotatE,
+which model relations using translation and rotation, respectively. Their
+geometric operations are illustrated in Figure~\ref{fig:kge-geometries}.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.40\textwidth]{figures/chap2/TransE-thesis.pdf}
+    \hfill
+    \includegraphics[width=0.40\textwidth]{figures/chap2/RotatE-thesis.pdf}
+    \caption{Geometric interpretation of TransE (left) and RotatE (right).
+    TransE translates the head embedding by the relation embedding, whereas
+    RotatE applies the relation as a rotation in complex space. In both
+    diagrams, $d$ is the distance between the transformed head embedding and
+    the tail embedding; a smaller distance gives a higher model score.}
+    \label{fig:kge-geometries}
+\end{figure}
 
 \subsubsection{TransE}
 
-% TODO：用简单公式介绍 translation-based scoring idea 和本文使用的 score。
-% 如果讨论表达能力或局限，必须有对应文献，并且只保留与后文有关的内容。
+TransE represents entities and relations as vectors in a real-valued space and
+models a relation as a translation from the head entity to the tail entity
+\citep{bordes2013translating}. For a plausible triple,
+$\mathbf{h}+\mathbf{r}$ should be close to $\mathbf{t}$. The left part of
+Figure~\ref{fig:kge-geometries} shows this translation. Using the $L_2$
+distance adopted in the current experiments, the score is
+\begin{align}
+    s_{\mathrm{TransE}}(h,r,t)
+    =
+    -\left\|\mathbf{h}+\mathbf{r}-\mathbf{t}\right\|_2.
+\end{align}
+A smaller distance therefore gives a higher score.
 
 \subsubsection{RotatE}
 
-% TODO：介绍 complex space 中的 relation rotation 和本文使用的 score。与
-% relation patterns 的联系只写原论文明确支持的 representational capacity，
-% 不提前暗示这些 patterns 会降低 multiplicity。
+RotatE represents entities in a complex-valued space and models each relation
+as an element-wise rotation \citep{sun2019rotate}. Each component of the
+relation embedding has unit modulus. A plausible triple therefore satisfies
+$\mathbf{h}\circ\mathbf{r}\approx\mathbf{t}$, where $\circ$ denotes
+element-wise complex multiplication. The right part of
+Figure~\ref{fig:kge-geometries} illustrates this operation for one complex
+dimension. Under the $L_2$ distance used in the current experiments, the score
+is
+\begin{align}
+    s_{\mathrm{RotatE}}(h,r,t)
+    =
+    -\left\|\mathbf{h}\circ\mathbf{r}-\mathbf{t}\right\|_2.
+\end{align}
+As in TransE, a smaller distance produces a higher score.
 
 \subsection{Link Prediction Evaluation}
 
