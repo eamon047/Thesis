@@ -3,33 +3,135 @@
 
 \subsection{Model Multiplicity in Machine Learning}
 
-% TODO：从 broader machine learning 中的 model multiplicity / Rashomon effect
-% 开始：多个模型可以有相近的 aggregate performance，却在 individual
-% predictions 上作出不同决定。再说明 predictive multiplicity 更关注这种
-% prediction-level difference。可以简要覆盖 classification、deep models 或
-% counterfactual explanations 中的代表性工作，但应回到原始文献，不直接照搬
-% KGE predictive multiplicity 论文的 related-work 叙述。
+Model multiplicity refers to the existence of several models that perform
+similarly on the same prediction task. It is often discussed through the
+Rashomon effect: different models can achieve similar aggregate error while
+representing the data in different ways \citep{breiman2001statistical}.
+Aggregate evaluation may therefore make the models appear interchangeable even
+when they do not make the same decisions for individual inputs.
+
+Predictive multiplicity focuses specifically on these differences in
+predictions. In binary classification, \citet{marx2020predictive} study cases
+where models with comparable error rates assign different labels to the same
+individuals. Related work has extended this question to probabilistic
+classification \citep{watsondaniels2023predictive} and has examined how model
+multiplicity affects counterfactual explanations
+\citep{pawelczyk2020counterfactual}. These studies use different prediction
+outputs, but they share the distinction between average performance and the
+stability of individual decisions.
+
+This distinction also applies to ranking tasks. A link-prediction model does
+not assign only one class label; it ranks candidate entities for a query. Two
+models may obtain similar aggregate ranking accuracy while placing the correct
+entity within the top-$K$ for different queries. Predictive multiplicity in
+KGE-based link prediction concerns this query-level difference.
 
 \subsection{Predictive Multiplicity in KGE-Based Link Prediction}
 
-% TODO：重点介绍 Zhu et al. 的工作：为什么 aggregate KGE performance 不能
-% 描述 query-level top-k stability、comparable models 的基本思路，以及其
-% global model-level findings。准确区分原论文 protocol 与本文第5章当前采用的
-% comparable repeated-run setting；除非方法与实现证据明确支持，不要写成本文
-% 完整复现了原论文的全部 epsilon-filtered competing-model protocol。
+\citet{zhu2024predictive} introduced predictive multiplicity for KGE-based
+link prediction. Their formulation compares a baseline model with competing
+models whose aggregate Hits@$K$ values are close to that of the baseline. Let
+$\mathcal{M}$ be a class of KGE models, let $M^*\in\mathcal{M}$ be the
+baseline, and let $H_K(M)$ denote its aggregate Hits@$K$. The performance
+difference is
+\begin{align}
+    D(M,M^*)=H_K(M^*)-H_K(M).
+\end{align}
+Given an error tolerance $\epsilon$, the corresponding $\epsilon$-level set is
+\begin{align}
+    S_\epsilon(M^*)
+    =
+    \{M\in\mathcal{M}\mid D(M,M^*)\leq\epsilon\}.
+\end{align}
+Models in this set can be close in aggregate performance while giving different
+top-$K$ outcomes for individual testing items.
+
+In the experiments of the original study, the baseline was selected through
+hyperparameter optimization. The selected configuration was then trained with
+different random seeds to obtain a sampled approximation of the
+$\epsilon$-level set. The study used $\epsilon=0.01$ and limited this sampled
+set to ten models \citep{zhu2024predictive}. This is the protocol used in that
+study; the repeated-run comparison used in this thesis is defined separately
+in Chapter~\ref{chap:framework}.
+
+Across six KGE methods and several benchmark datasets, the original study
+reported conflicting top-$K$ outcomes for approximately 8--39\% of testing
+items \citep{zhu2024predictive}. These results show that similar aggregate
+accuracy does not guarantee the same query-level decisions. The principal
+reported measures summarize multiplicity over an entire testing set, however,
+so they do not show how the conflicts are distributed across relations or
+prediction sides.
 
 \subsection{Measures and Mitigation in the Original Study}
 
-% TODO：解释原研究中 ambiguity 和 discrepancy 分别回答什么问题，并给出后文
-% 所需的定义。两者不能被写成普通 error rate 或所有 queries 上的 disagreement
-% rate。原论文的 voting mitigation 只用一小段说明其目的和主要思路，不展开
-% voting rules 或 social choice theory，因为本文不提出新的 mitigation method。
+The original study adapts ambiguity and discrepancy, previously used in
+classification research \citep{marx2020predictive,watsondaniels2023predictive},
+to top-$K$ link prediction. Let $\mathcal{T}$ be the testing-item set. Each
+item $\tau=(q,e)$ consists of a query $q$ and its held-out correct entity $e$.
+For a model $M$, let $T_K(M,\tau)$ be one if $e$ is ranked within the top-$K$
+for $q$, and zero otherwise. The conflict indicator between $M$ and the
+baseline is
+\begin{align}
+    \Delta(M,\tau)
+    =
+    \mathbf{1}\!\left[T_K(M,\tau)\neq T_K(M^*,\tau)\right].
+\end{align}
+It records a change in the binary top-$K$ outcome, rather than a difference
+between the complete candidate rankings.
+
+Ambiguity is the proportion of testing items for which at least one competing
+model conflicts with the baseline:
+\begin{align}
+    \alpha_\epsilon(M^*)
+    =
+    \frac{1}{|\mathcal{T}|}
+    \sum_{\tau\in\mathcal{T}}
+    \max_{M\in S_\epsilon(M^*)}
+    \Delta(M,\tau).
+\end{align}
+It asks how widely the possibility of a changed prediction is distributed
+over the testing set. Discrepancy instead measures the largest disagreement
+produced by any one competing model:
+\begin{align}
+    \delta_\epsilon(M^*)
+    =
+    \max_{M\in S_\epsilon(M^*)}
+    \frac{1}{|\mathcal{T}|}
+    \sum_{\tau\in\mathcal{T}}
+    \Delta(M,\tau).
+\end{align}
+Thus, ambiguity can combine conflicts produced by different competing models,
+whereas discrepancy concerns the single model with the greatest disagreement.
+Both measures use all items in $\mathcal{T}$ in the original definitions.
+They are not error rates: a conflict may arise because a competing model turns
+a baseline miss into a hit or because it turns a baseline hit into a miss.
+
+The same study also investigated voting as a mitigation method. Majority,
+Borda, and range voting aggregate the candidate rankings produced by several
+models into one ranking at test time. The reported results show that ranking
+aggregation can reduce predictive conflicts, although majority voting can also
+reduce Hits@$K$ \citep{zhu2024predictive}. This thesis does not develop or
+evaluate a new voting method; it studies where multiplicity appears before
+such mitigation.
 
 \subsection{Research Gap and Position of This Thesis}
 
-% TODO：指出已有 KGE 研究主要在 global model level 讨论 predictive
-% multiplicity，尚未解释 instability 是否集中在特定 relations、prediction
-% sides 或 relation patterns。本文的位置是 relation-level empirical analysis，
-% 不是新 KGE model，也不是新的 voting or mitigation method。最后自然过渡到
-% 第4章的 analysis design；本文的 eligible subset 和 relation-level aggregation
-% 等 operational choices 留在第4章定义。
+The existing KGE study establishes that predictive multiplicity occurs, but a
+single ambiguity or discrepancy value for a model--dataset setting does not
+identify where the instability occurs. In particular, it does not show whether
+conflicts are distributed evenly across relations, whether head and tail
+prediction behave differently, or whether multiplicity varies with relation
+patterns.
+
+This thesis addresses this gap through a relation-level empirical analysis. It
+uses repeated runs of RotatE and TransE and groups their top-10 outcomes by
+relation and, where needed, by prediction side. It then compares relation-level
+accuracy and multiplicity across mapping type, inverse, and symmetry. The aim
+is to locate and describe prediction instability, rather than to propose a new
+KGE model or a new mitigation method.
+
+The analysis is based on the concepts of ambiguity and discrepancy above, but
+it is not presented as an exact reproduction of the original paper's complete
+$\epsilon$-level-set protocol. Chapter~\ref{chap:framework} defines the current
+comparable repeated-run setting, the relation-specific eligible subset, and the
+relation-level versions of the two measures.
