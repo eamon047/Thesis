@@ -163,27 +163,27 @@
 % \end{jabstract}
 
 \begin{eabstract}
-Knowledge graph embedding models predict missing links by ranking candidate
-entities for incomplete triples. Their overall performance is usually
-summarized by aggregate top-10 accuracy (Hits@10). This aggregate value does
-not show whether similarly performing models make the same top-10 decision for
-each query. Previous work introduced predictive multiplicity and showed that
-similarly performing KGE models can produce different predictions for the same
-query. However, this instability was summarized at the global model level,
-leaving open whether it varies across relation patterns.
+Knowledge graph embedding (KGE) models predict missing links by ranking
+candidate entities. For a given KGE method, repeated runs trained with the same
+configuration but different random seeds can achieve similar overall accuracy
+while disagreeing on whether the correct entity appears in the top ten for the
+same query. This phenomenon is known as predictive multiplicity. This means
+that the outcome for an individual query may depend on random training choices
+even when overall performance appears stable. Previous work established and
+measured predictive multiplicity in KGE-based link prediction, but its main
+analysis left open whether some types of queries are more affected than others.
 
-This thesis examines predictive multiplicity at the relation level using the
-FB15k-237 knowledge graph dataset and repeated runs of two KGE model families,
-RotatE and TransE. We evaluate relation-level top-10 accuracy together with two
-measures of disagreement across runs, ambiguity and discrepancy. We compare
-these outcomes across three relation patterns: whether a relation connects one
-or many entities on each side (mapping type), whether a different relation
-connects the same entities in reverse order (inverse), and whether the relation
-itself connects entity pairs in both directions (symmetry). The results show
-that prediction instability differs across relation patterns in both models,
-most clearly for mapping type. This relation-level view may help future work
-target the relations and prediction directions where instability is
-concentrated.
+This thesis examines which types of link-prediction queries are more likely to
+be unstable. Using FB15k-237, we analyze RotatE and TransE separately. For each
+method, we compare repeated runs that use the same configuration and differ
+only in random seed. We compare top-10 accuracy and disagreement across runs
+for three relation patterns: whether a relation connects one or many entities
+on each side (mapping type), whether a different relation connects the same
+entities in reverse order (inverse), and whether the relation itself connects
+entity pairs in both directions (symmetry). The results show that prediction
+instability differs across relation patterns in both models, most clearly for
+mapping type. This analysis may help future work focus on the types of queries
+for which predictions are less stable.
 \end{eabstract}
 
 \tableofcontents			% 目次の出力
