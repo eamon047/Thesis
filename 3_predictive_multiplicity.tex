@@ -6,9 +6,14 @@
 Model multiplicity refers to the existence of several models that perform
 similarly on the same prediction task. It is often discussed through the
 Rashomon effect: different models can achieve similar aggregate error while
-representing the data in different ways \citep{breiman2001statistical}.
+representing the data in different ways
+\citep{breiman2001statistical,fisher2019all}.
 Aggregate evaluation may therefore make the models appear interchangeable even
 when they do not make the same decisions for individual inputs.
+
+This issue is also related to underspecification: a fixed training and
+validation pipeline can produce predictors with similarly strong held-out
+performance but different behavior \citep{damour2022underspecification}.
 
 Predictive multiplicity focuses specifically on these differences in
 predictions. In binary classification, \citet{marx2020predictive} study cases

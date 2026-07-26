@@ -7,13 +7,14 @@ France can be written as \texttt{(Paris, capital\_of, France)}. Objects such as
 Paris and France are called entities, while \texttt{capital\_of} is the
 relation connecting them. Many such triples form a graph of connected facts.
 Knowledge graphs are used in applications such as semantic search,
-recommendation, and question answering. More recently, knowledge graphs have
+recommendation, and question answering
+\citep{hogan2021knowledge,ji2022survey}. More recently, knowledge graphs have
 also been combined with large language models in retrieval-augmented
 generation, where structured knowledge can be retrieved as external
 information during inference \citep{pan2024roadmap}. However, real-world
 knowledge graphs are often incomplete, and some valid links between entities
 are missing. Link prediction aims to recover these missing links
-\citep{ji2022survey}.
+\citep{ji2022survey,rossi2021comparative}.
 
 Knowledge graph embedding (KGE) models perform link prediction by learning
 vector representations of entities and relations. For a query with a missing

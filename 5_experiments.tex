@@ -3,11 +3,12 @@
 
 \subsection{Experimental Setup}
 
-The experiments use FB15k-237, which contains 14,541 entities and 237
-relations. Its training, validation, and test sets contain 272,115, 17,535,
-and 20,466 triples, respectively. We consider two KGE model families, RotatE
-and TransE. They provide two different model settings for checking whether the
-observed relation-level patterns are specific to one embedding model.
+The experiments use FB15k-237 \citep{toutanova2015observed}, which contains
+14,541 entities and 237 relations. Its training, validation, and test sets
+contain 272,115, 17,535, and 20,466 triples, respectively. We consider two KGE
+model families, RotatE and TransE. They provide two different model settings
+for checking whether the observed relation-level patterns are specific to one
+embedding model.
 
 Chapter~\ref{chap:framework} describes the comparable repeated-run setting and
 the relation-level analysis design. All link-prediction results are evaluated
@@ -52,10 +53,7 @@ more candidate ambiguity with the opposite side of the same relation.
 
 If the two sides are combined, the result may look weaker because the difficult
 side and the opposite side are averaged together. For this reason, the following
-analysis reports tail prediction and head prediction separately. The combined
-view is left to the appendix as a supporting check.
-% TODO: Add the combined relation-level mapping-type figure to the appendix as
-% a diagnostic result, rather than using it as main evidence in Section 5.2.
+analysis reports tail prediction and head prediction separately.
 
 \subsubsection{RotatE Results}
 
@@ -163,8 +161,53 @@ many is associated with lower accuracy and higher predictive multiplicity than
 predicting the opposite side. This result suggests that the relation between
 mapping type and predictive multiplicity depends on which side is predicted.
 
-The exact grouped means for all four mapping types are reported in
-Appendix~\ref{app:mapping-type-tables}.
+Tables~\ref{tab:mapping-type-tail-summary}
+and~\ref{tab:mapping-type-head-summary} report the corresponding grouped means
+for tail and head prediction.
+
+\begin{table}[!t]
+    \centering
+    \caption{Relation-level means for tail prediction under
+    \(\texttt{test\_support}\geq 10\).}
+    \label{tab:mapping-type-tail-summary}
+    \small
+    \begin{tabular}{llrrr}
+        \toprule
+        Model & Mapping type & Hits@10 & \(\alpha\) & \(\delta\) \\
+        \midrule
+        RotatE & \(1\)-\(1\) & 0.6771 & 0.2422 & 0.1529 \\
+        RotatE & \(1\)-\(N\) & 0.2104 & 0.5234 & 0.3659 \\
+        RotatE & \(M\)-\(1\) & 0.8251 & 0.1076 & 0.0731 \\
+        RotatE & \(M\)-\(N\) & 0.6313 & 0.2646 & 0.1591 \\
+        TransE & \(1\)-\(1\) & 0.7016 & 0.2790 & 0.2218 \\
+        TransE & \(1\)-\(N\) & 0.1741 & 0.7147 & 0.4596 \\
+        TransE & \(M\)-\(1\) & 0.8180 & 0.1809 & 0.1117 \\
+        TransE & \(M\)-\(N\) & 0.6065 & 0.3877 & 0.2200 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[!t]
+    \centering
+    \caption{Relation-level means for head prediction under
+    \(\texttt{test\_support}\geq 10\).}
+    \label{tab:mapping-type-head-summary}
+    \small
+    \begin{tabular}{llrrr}
+        \toprule
+        Model & Mapping type & Hits@10 & \(\alpha\) & \(\delta\) \\
+        \midrule
+        RotatE & \(1\)-\(1\) & 0.6664 & 0.3216 & 0.2145 \\
+        RotatE & \(1\)-\(N\) & 0.7527 & 0.1939 & 0.1168 \\
+        RotatE & \(M\)-\(1\) & 0.2836 & 0.5855 & 0.3835 \\
+        RotatE & \(M\)-\(N\) & 0.5971 & 0.3366 & 0.1994 \\
+        TransE & \(1\)-\(1\) & 0.6861 & 0.3015 & 0.1332 \\
+        TransE & \(1\)-\(N\) & 0.7455 & 0.2261 & 0.1339 \\
+        TransE & \(M\)-\(1\) & 0.2439 & 0.7523 & 0.4893 \\
+        TransE & \(M\)-\(N\) & 0.5764 & 0.4355 & 0.2474 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 \subsection{Inverse Relation Analysis}
 \label{sec:inverse_analysis}
@@ -200,10 +243,19 @@ increases.
 
 \begin{table}[!t]
     \centering
-    \includegraphics[width=0.86\textwidth]{figures/chap5/inverse/spearman.pdf}
     \caption{Spearman correlations between inverse clarity and relation-level
     Hits@10, \(\alpha\), and \(\delta\).}
     \label{tab:inverse-spearman}
+    \small
+    \begin{tabular}{lrrr}
+        \toprule
+        Model & Spearman (Hits@10) & Spearman (\(\alpha\)) &
+        Spearman (\(\delta\)) \\
+        \midrule
+        RotatE & -0.2796 & 0.2398 & 0.2263 \\
+        TransE & -0.2819 & 0.2371 & 0.2427 \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 The global correlations do not show a monotonic benefit across all relations.
@@ -224,11 +276,28 @@ of zero.
 
 \begin{table}[!t]
     \centering
-    \includegraphics[width=0.86\textwidth]{figures/chap5/inverse/score-groups.pdf}
     \caption{Relation-level results grouped by inverse clarity. The label
     \emph{Score} in the table refers to the inverse clarity defined in
     Chapter~\ref{chap:framework}.}
     \label{tab:inverse-score-groups}
+    \small
+    \begin{tabular}{llrrrr}
+        \toprule
+        Model & Score range & Relations & Hits@10 & \(\alpha\) & \(\delta\) \\
+        \midrule
+        RotatE & All relations & 182 & 0.5797 & 0.2433 & 0.1427 \\
+        \cmidrule(lr){1-6}
+        RotatE & Score \(=0\) & 78 & 0.6700 & 0.1721 & 0.1031 \\
+        RotatE & \(0<\text{Score}\leq 0.5\) & 99 & 0.4974 & 0.3116 & 0.1812 \\
+        RotatE & Score \(>0.5\) & 5 & 0.8000 & 0.0000 & 0.0000 \\
+        \midrule
+        TransE & All relations & 182 & 0.5585 & 0.3357 & 0.1885 \\
+        \cmidrule(lr){1-6}
+        TransE & Score \(=0\) & 78 & 0.6480 & 0.2565 & 0.1452 \\
+        TransE & \(0<\text{Score}\leq 0.5\) & 99 & 0.4816 & 0.4082 & 0.2281 \\
+        TransE & Score \(>0.5\) & 5 & 0.6866 & 0.1361 & 0.0813 \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 One possible interpretation is that partial or ambiguous reverse support is
@@ -267,10 +336,19 @@ multiplicity.
 
 \begin{table}[!t]
     \centering
-    \includegraphics[width=0.86\textwidth]{figures/chap5/symmetry/spearman.pdf}
     \caption{Spearman correlations between the excluding-self-loop symmetry
     score and relation-level Hits@10, \(\alpha\), and \(\delta\).}
     \label{tab:symmetry-spearman}
+    \small
+    \begin{tabular}{lrrr}
+        \toprule
+        Model & Spearman (Hits@10) & Spearman (\(\alpha\)) &
+        Spearman (\(\delta\)) \\
+        \midrule
+        RotatE & 0.0122 & 0.1310 & 0.1292 \\
+        TransE & 0.0117 & 0.0425 & 0.0520 \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 In Table~\ref{tab:symmetry-score-groups}, Hits@10 falls in the middle score
@@ -283,10 +361,27 @@ therefore not consistently associated with lower predictive multiplicity.
 
 \begin{table}[!t]
     \centering
-    \includegraphics[width=0.86\textwidth]{figures/chap5/symmetry/score-groups.pdf}
     \caption{Relation-level results grouped by the excluding-self-loop
     symmetry score.}
     \label{tab:symmetry-score-groups}
+    \small
+    \begin{tabular}{llrrrr}
+        \toprule
+        Model & Score range & Relations & Hits@10 & \(\alpha\) & \(\delta\) \\
+        \midrule
+        RotatE & All relations & 182 & 0.5797 & 0.2433 & 0.1427 \\
+        \cmidrule(lr){1-6}
+        RotatE & Score \(=0\) & 164 & 0.5815 & 0.2294 & 0.1331 \\
+        RotatE & \(0<\text{Score}\leq 0.5\) & 6 & 0.5047 & 0.3610 & 0.2236 \\
+        RotatE & Score \(>0.5\) & 12 & 0.5924 & 0.3735 & 0.2341 \\
+        \midrule
+        TransE & All relations & 182 & 0.5585 & 0.3357 & 0.1885 \\
+        \cmidrule(lr){1-6}
+        TransE & Score \(=0\) & 164 & 0.5605 & 0.3307 & 0.1838 \\
+        TransE & \(0<\text{Score}\leq 0.5\) & 6 & 0.4725 & 0.4436 & 0.2736 \\
+        TransE & Score \(>0.5\) & 12 & 0.5742 & 0.3512 & 0.2119 \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 A possible explanation is that symmetry places only a broad constraint on the

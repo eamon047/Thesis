@@ -4,7 +4,7 @@
 \subsection{Knowledge Graphs and Link Prediction}
 
 A knowledge graph represents facts as directed relational triples
-\citep{ji2022survey}. Let $\mathcal{E}$ be the set of entities and
+\citep{hogan2021knowledge,ji2022survey}. Let $\mathcal{E}$ be the set of entities and
 $\mathcal{R}$ the set of relations. A knowledge graph can be written as
 \begin{align}
     \mathcal{G}
@@ -40,12 +40,16 @@ the missing position, and the resulting triples are ranked by the model.
 
 Knowledge graph embedding (KGE) models assign learned low-dimensional
 representations to entities and relations. A scoring function uses these
-representations to measure the plausibility of a triple. The models used in
-this thesis learn their representations by comparing observed training triples
-with sampled alternatives. For link prediction, the same scoring function is
-used to rank the candidate entities. This thesis considers TransE and RotatE,
-which model relations using translation and rotation, respectively. Their
-geometric operations are illustrated in Figure~\ref{fig:kge-geometries}.
+representations to measure the plausibility of a triple. Existing methods use
+several families of scoring functions, including translational, bilinear, and
+neural approaches
+\citep{wang2017knowledge,nickel2016review,rossi2021comparative}. The models
+used in this thesis learn their representations by comparing observed training
+triples with sampled alternatives. For link prediction, the same scoring
+function is used to rank the candidate entities. This thesis considers TransE
+and RotatE, which model relations using translation and rotation,
+respectively. Their geometric operations are illustrated in
+Figure~\ref{fig:kge-geometries}.
 
 \begin{figure}[!t]
     \centering
@@ -106,6 +110,10 @@ candidates that form known true triples are removed before the rank of the
 held-out correct entity is computed. This avoids penalizing the model when
 another correct answer is ranked above the held-out answer. The experiments in
 this thesis use filtered evaluation.
+
+Reported KGE performance can also depend on training strategy and
+hyperparameter selection, so these choices need to be specified when models
+are compared \citep{ruffinelli2020teach,rossi2021comparative}.
 
 Let $\mathcal{T}$ be a set of evaluated query--answer pairs, and let
 $\operatorname{rank}(\tau)$ be the filtered rank of the correct entity for
