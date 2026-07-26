@@ -1,14 +1,18 @@
 \section{Introduction}
 \label{chap:introduction}
 
-Knowledge graphs organize information as entities and relations and provide a
-structured representation of facts. They are used in applications such as
-semantic search, recommendation, and question answering. More recently,
-knowledge graphs have also been combined with large language models in
-retrieval-augmented generation, where structured knowledge can be retrieved as
-external information during inference \citep{pan2024roadmap}. However,
-real-world knowledge graphs are often incomplete, and some valid links between
-entities are missing. Link prediction aims to recover these missing links
+A knowledge graph represents a fact as a triple consisting of two objects and
+the relation between them. For example, the fact that Paris is the capital of
+France can be written as \texttt{(Paris, capital\_of, France)}. Objects such as
+Paris and France are called entities, while \texttt{capital\_of} is the
+relation connecting them. Many such triples form a graph of connected facts.
+Knowledge graphs are used in applications such as semantic search,
+recommendation, and question answering. More recently, knowledge graphs have
+also been combined with large language models in retrieval-augmented
+generation, where structured knowledge can be retrieved as external
+information during inference \citep{pan2024roadmap}. However, real-world
+knowledge graphs are often incomplete, and some valid links between entities
+are missing. Link prediction aims to recover these missing links
 \citep{ji2022survey}.
 
 Knowledge graph embedding (KGE) models perform link prediction by learning
@@ -27,22 +31,27 @@ multiplicity. Previous work introduced predictive multiplicity for KGE-based
 link prediction and showed that models with comparable overall performance can
 produce different predictions for the same query
 \citep{zhu2024predictive}. That study summarized multiplicity mainly at the
-global model level. This leaves open whether the instability is distributed
-evenly across relations or concentrated in particular relation patterns.
+global model level. This leaves open whether prediction instability affects
+all relations similarly or is greater for some groups of relations than for
+others.
 
-This thesis examines predictive multiplicity at the relation level using
-FB15k-237 and repeated runs of RotatE and TransE. We compare relation-level
-Hits@10 and prediction disagreement across repeated runs for three relation
-patterns: how many entities a relation connects on each side (mapping type),
-whether another relation connects the same entities in reverse order (inverse),
-and whether the relation itself connects entity pairs in both directions
-(symmetry). The results show that predictive multiplicity is not evenly
-distributed across relations. The clearest differences appear for mapping type
-and depend on which side is predicted. A small group of relations with clear
-inverse partners has lower multiplicity, while symmetry shows no clear
-association. This relation-level view complements aggregate accuracy by showing
-where prediction instability is concentrated. It may also help future work
-focus on the relations and prediction directions with greater instability.
+The general aim of this thesis is to determine whether query-level prediction
+instability, which is not visible in overall accuracy, is evenly distributed
+or concentrated in identifiable groups of queries. We investigate whether such
+groups can be identified from the relations used in the queries. To examine
+this question experimentally, we use FB15k-237 and analyze repeated runs of
+RotatE and TransE separately. Within each model family, the runs use the same
+configuration and differ only in random seed. We classify relations in three
+ways, referred to as relation patterns. Mapping type distinguishes one-to-one,
+one-to-many, many-to-one, and many-to-many connections. Inverse relations
+describe the same connection in opposite directions, while symmetric relations
+hold in both directions. We compare relation-level Hits@10 and prediction
+disagreement across these classifications. The results show that relation-based
+groups differ in prediction stability. The clearest differences appear for
+mapping type and depend on which side is predicted. A small group of relations
+with clear inverse partners has lower multiplicity, while symmetry shows no
+clear association. These findings suggest that overall accuracy can hide
+systematic differences in stability across groups of queries.
 
 The remainder of this thesis is organized as follows. Chapter 2 introduces
 knowledge graphs, KGE models, link prediction evaluation, and the relation

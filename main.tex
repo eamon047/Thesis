@@ -163,27 +163,45 @@
 % \end{jabstract}
 
 \begin{eabstract}
-Knowledge graph embedding (KGE) models predict missing links by ranking
-candidate entities. For a given KGE method, repeated runs trained with the same
-configuration but different random seeds can achieve similar overall accuracy
-while disagreeing on whether the correct entity appears in the top ten for the
-same query. This phenomenon is known as predictive multiplicity. This means
-that the outcome for an individual query may depend on random training choices
-even when overall performance appears stable. Previous work established and
-measured predictive multiplicity in KGE-based link prediction, but its main
-analysis left open whether some types of queries are more affected than others.
+A knowledge graph stores facts as triples that link two objects through a
+relation, such as \texttt{(Paris, capital\_of, France)}.
+Knowledge graph embedding (KGE) models represent these objects and relations as
+vectors and rank candidate objects to complete triples with a missing entry.
+Previous work has shown that repeated runs of the same KGE method, trained with
+the same configuration but different random seeds, can achieve similar overall
+accuracy. Despite this similarity, that work found that, for the same
+incomplete triple, one trained model may rank the correct answer among the top
+ten candidates while another does not. This disagreement between similarly
+accurate models is called predictive multiplicity. It means that an individual
+prediction can depend on the random seed used during training even when
+aggregate accuracy is stable. However, the analysis in that work summarized
+instability mainly over entire test sets, leaving unclear whether some kinds of
+relations are more affected than others. Such an overall measurement cannot
+show which predictions are more likely to change when the model is retrained,
+making it difficult to focus future efforts to improve stability on the most
+affected queries.
 
-This thesis examines which types of link-prediction queries are more likely to
-be unstable. Using FB15k-237, we analyze RotatE and TransE separately. For each
-method, we compare repeated runs that use the same configuration and differ
-only in random seed. We compare top-10 accuracy and disagreement across runs
-for three relation patterns: whether a relation connects one or many entities
-on each side (mapping type), whether a different relation connects the same
-entities in reverse order (inverse), and whether the relation itself connects
-entity pairs in both directions (symmetry). The results show that prediction
-instability differs across relation patterns in both models, most clearly for
-mapping type. This analysis may help future work focus on the types of queries
-for which predictions are less stable.
+To address this limitation, this thesis classifies the relations in the dataset
+in three ways and compares predictions for the resulting groups in terms of
+top-10 accuracy and predictive multiplicity. We refer to these three
+classifications as relation patterns. The experiments use FB15k-237, a
+benchmark knowledge graph dataset, and two KGE methods, RotatE and TransE. Each
+method is evaluated separately through repeated runs with the same
+configuration but different random seeds. The first classification, called
+mapping type, groups relations as one-to-one, one-to-many, many-to-one, or
+many-to-many. For example, \texttt{born\_in} is many-to-one because many people
+may share the same birthplace, while each person normally has one birthplace.
+The second classification asks whether another relation expresses the same
+fact in reverse (inverse), as \texttt{parent\_of} and \texttt{child\_of} do.
+The third asks whether the same relation holds in both directions (symmetry),
+as \texttt{sibling\_of} does. The clearest difference appears for mapping type.
+In both methods, predictions have lower top-10 accuracy and vary more across
+repeated runs when many different objects can be linked to the known
+object---for example, when predicting a person from a known birthplace. Only a
+small group of relations with clear inverse partners is more stable, while
+symmetry shows no clear difference in stability. These results show that
+classifying relations can reveal differences in prediction stability that are
+hidden by overall accuracy.
 \end{eabstract}
 
 \tableofcontents			% 目次の出力
@@ -194,9 +212,6 @@ for which predictions are less stable.
 \input{4_relation_level_framework.tex}
 \input{5_experiments.tex}
 \input{6_conclusion.tex}
-
-\section*{Acknowledgement}
-% TODO：等论文主体基本稳定以后再写致谢。
 
 \Appendix
 \input{appendix.tex}
