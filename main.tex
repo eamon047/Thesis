@@ -166,42 +166,35 @@
 A knowledge graph stores facts as triples that link two objects through a
 relation, such as \texttt{(Paris, capital\_of, France)}.
 Knowledge graph embedding (KGE) models represent these objects and relations as
-vectors and rank candidate objects to complete triples with a missing entry.
-Previous work has shown that repeated runs of the same KGE method, trained with
-the same configuration but different random seeds, can achieve similar overall
-accuracy. Despite this similarity, that work found that, for the same
-incomplete triple, one trained model may rank the correct answer among the top
-ten candidates while another does not. This disagreement between similarly
-accurate models is called predictive multiplicity. It means that an individual
-prediction can depend on the random seed used during training even when
-aggregate accuracy is stable. However, the analysis in that work summarized
-instability mainly over entire test sets, leaving unclear whether some kinds of
-relations are more affected than others. Such an overall measurement cannot
-show which predictions are more likely to change when the model is retrained,
-making it difficult to focus future efforts to improve stability on the most
-affected queries.
+vectors and rank candidate objects to complete a triple when one of its objects
+is missing. Previous work found that repeated runs of the same KGE method,
+trained with the same configuration but different random seeds, can achieve
+similar overall accuracy yet differ on whether the correct answer is ranked
+among the top ten candidates for the same incomplete triple. This phenomenon,
+called predictive multiplicity, means that an individual prediction can depend
+on the random seed even when overall accuracy is stable. However, that work
+mainly reported instability over entire test sets and did not identify which
+kinds of relations were most affected, making it difficult to focus future
+efforts to improve stability.
 
-To address this limitation, this thesis classifies the relations in the dataset
-in three ways and compares predictions for the resulting groups in terms of
-top-10 accuracy and predictive multiplicity. We refer to these three
-classifications as relation patterns. The experiments use FB15k-237, a
+To test whether predictions are less stable for some relation groups than for
+others, this thesis classifies relations in three ways, referred to as relation
+patterns, and examines the resulting groups. The experiments use FB15k-237, a
 benchmark knowledge graph dataset, and two KGE methods, RotatE and TransE. Each
-method is evaluated separately through repeated runs with the same
-configuration but different random seeds. The first classification, called
-mapping type, groups relations as one-to-one, one-to-many, many-to-one, or
-many-to-many. For example, \texttt{born\_in} is many-to-one because many people
-may share the same birthplace, while each person normally has one birthplace.
-The second classification asks whether another relation expresses the same
-fact in reverse (inverse), as \texttt{parent\_of} and \texttt{child\_of} do.
-The third asks whether the same relation holds in both directions (symmetry),
-as \texttt{sibling\_of} does. The clearest difference appears for mapping type.
-In both methods, predictions have lower top-10 accuracy and vary more across
-repeated runs when many different objects can be linked to the known
-object---for example, when predicting a person from a known birthplace. Only a
-small group of relations with clear inverse partners is more stable, while
-symmetry shows no clear difference in stability. These results show that
-classifying relations can reveal differences in prediction stability that are
-hidden by overall accuracy.
+method is analyzed separately across runs that differ only in random seed.
+Mapping type asks whether one object on either side of a relation is paired
+with one or many objects on the other. For \texttt{born\_in}, many people can
+share a birthplace, while each person normally has one. Inverse asks whether
+reversing the two objects gives a different relation with the same meaning, as
+\texttt{parent\_of} becomes \texttt{child\_of}. Symmetry asks whether the same
+relation remains true after the objects are swapped: if A is a sibling of B,
+then B is a sibling of A. The clearest difference appears for mapping type:
+in both methods, predictions are less accurate and less stable when one known
+object can be linked to many possible answers. For example, many people may be
+valid answers when the birthplace is known. A small group of relations with
+clear inverse partners is more stable, while symmetry shows no clear
+difference. These results may guide targeted efforts to reduce predictive
+multiplicity.
 \end{eabstract}
 
 \tableofcontents			% 目次の出力
