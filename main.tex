@@ -179,9 +179,9 @@ efforts to improve stability.
 
 To test whether predictions are less stable for some relation groups than for
 others, this thesis classifies relations in three ways, referred to as relation
-patterns, and examines the resulting groups. The experiments use FB15k-237, a
-benchmark knowledge graph dataset, and two KGE methods, RotatE and TransE. Each
-method is analyzed separately across runs that differ only in random seed.
+patterns, and examines the resulting groups. Experiments use the FB15k-237
+knowledge graph dataset and two KGE methods, RotatE and TransE. For each method,
+only the random seed differs across runs.
 Mapping type asks whether one object on either side of a relation is paired
 with one or many objects on the other. For \texttt{born\_in}, many people can
 share a birthplace, while each person normally has one. Inverse asks whether
@@ -193,8 +193,8 @@ in both methods, predictions are less accurate and less stable when one known
 object can be linked to many possible answers. For example, many people may be
 valid answers when the birthplace is known. A small group of relations with
 clear inverse partners is more stable, while symmetry shows no clear
-difference. These results may guide targeted efforts to reduce predictive
-multiplicity.
+association with predictive multiplicity. These results may guide targeted
+efforts to reduce predictive multiplicity.
 \end{eabstract}
 
 \tableofcontents			% 目次の出力
